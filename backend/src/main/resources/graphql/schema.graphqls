@@ -1,5 +1,6 @@
 type Query {
     nodeById(id: ID): Node
+    edgeById(id: ID): Edge
 }
 
 enum NodeType {
@@ -14,4 +15,10 @@ type Node {
     type: NodeType
     xPos: Float
     yPos: Float
+}
+
+type Edge {
+    id: ID!
+    sourceNode: Node
+    targetNode: Node
 }

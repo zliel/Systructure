@@ -1,0 +1,16 @@
+type Query {
+    nodeById(id: ID): Node
+}
+
+enum NodeType {
+    SERVICE
+    DATABASE
+    GATEWAY
+}
+
+type Node {
+    id: ID!
+    type: NodeType
+    xPos: Float
+    yPos: Float
+}

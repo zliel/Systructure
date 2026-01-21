@@ -10,6 +10,7 @@ enum NodeType {
 
 type Node {
     id: ID!
+    name: String
     type: NodeType
     xPos: Float
     yPos: Float

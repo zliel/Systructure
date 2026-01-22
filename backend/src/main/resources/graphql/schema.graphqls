@@ -1,14 +1,18 @@
 type Query {
     nodeById(id: ID): Node
     edgeById(id: ID): Edge
+    projectById(id: ID): Project
     allNodes: [Node]
     allEdges: [Edge]
+    allProjects: [Project]
+
 }
 
 enum NodeType {
-    SERVICE
     DATABASE
     GATEWAY
+    QUEUE
+    SERVICE
 }
 
 type Node {
@@ -23,4 +27,12 @@ type Edge {
     id: ID!
     sourceNode: Node
     targetNode: Node
+}
+
+type Project {
+    id: ID!
+    name: String
+    description: String
+    nodes: [Node]
+    edges: [Edge]
 }

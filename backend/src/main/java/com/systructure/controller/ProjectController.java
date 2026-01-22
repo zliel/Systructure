@@ -1,8 +1,6 @@
 package com.systructure.controller;
 
-import com.systructure.model.Edge;
-import com.systructure.model.Node;
-import com.systructure.model.Project;
+import com.systructure.model.*;
 import com.systructure.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -36,5 +34,15 @@ public class ProjectController {
     @SchemaMapping
     public List<Edge> edges(Project project) {
         return project.getEdges();
+    }
+
+    @SchemaMapping
+    public User createdBy(Project project) {
+        return project.getCreatedBy();
+    }
+
+    @SchemaMapping
+    public List<ProjectMember> members(Project project) {
+        return project.getProjectMembers();
     }
 }

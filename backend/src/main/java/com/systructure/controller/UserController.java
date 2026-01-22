@@ -1,10 +1,12 @@
 package com.systructure.controller;
 
+import com.systructure.model.ProjectMember;
 import com.systructure.model.User;
 import com.systructure.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -22,5 +24,10 @@ public class UserController {
     @QueryMapping
     public List<User> allUsers() {
         return userRepository.findAll();
+    }
+
+    @SchemaMapping
+    public List<ProjectMember> projectMemberships(User user) {
+        return user.getProjectMemberships();
     }
 }

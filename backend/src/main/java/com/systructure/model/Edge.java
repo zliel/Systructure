@@ -1,16 +1,15 @@
 package com.systructure.model;
 
-import java.util.Arrays;
 import java.util.List;
 
-public record Edge(String id, Node sourceNode, Node targetNode) {
-    public static List<Edge> edges = Arrays.asList(
-            new Edge("e1", Node.getById("1"), Node.getById("2")),
-            new Edge("e2", Node.getById("2"), Node.getById("3")),
-            new Edge("e3", Node.getById("3"), Node.getById("1"))
+public record Edge(Long id, Node sourceNode, Node targetNode) {
+    public static List<Edge> edges = List.of(
+            new Edge(1L, Node.getById(1L), Node.getById(2L)),
+            new Edge(2L, Node.getById(2L), Node.getById(3L)),
+            new Edge(3L, Node.getById(3L), Node.getById(1L))
     );
 
-    public static Edge getById(String id) {
+    public static Edge getById(Long id) {
         return edges.stream()
                 .filter(edge -> edge.id().equals(id))
                 .findFirst()

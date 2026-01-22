@@ -7,11 +7,18 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
+import java.util.List;
+
 @Controller
 public class EdgeController {
     @QueryMapping
-    public Edge edgeById(@Argument String id) {
+    public Edge edgeById(@Argument Long id) {
         return Edge.getById(id);
+    }
+
+    @QueryMapping
+    public List<Edge> allEdges() {
+        return Edge.edges;
     }
 
     @SchemaMapping

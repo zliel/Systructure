@@ -1,6 +1,8 @@
 type Query {
     nodeById(id: ID): Node
     edgeById(id: ID): Edge
+    allNodes: [Node]
+    allEdges: [Edge]
 }
 
 enum NodeType {

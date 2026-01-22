@@ -1,6 +1,8 @@
 package com.systructure.controller;
 
 import com.systructure.model.User;
+import com.systructure.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
@@ -8,14 +10,17 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
 public class UserController {
+    private final UserRepository userRepository;
+
     @QueryMapping
     public User userById(@Argument Long id) {
-        return User.getById(id);
+        return userRepository.findById(id).orElse(null);
     }
 
     @QueryMapping
     public List<User> allUsers() {
-        return User.users;
+        return userRepository.findAll();
     }
 }

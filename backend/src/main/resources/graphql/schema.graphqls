@@ -2,10 +2,11 @@ type Query {
     nodeById(id: ID): Node
     edgeById(id: ID): Edge
     projectById(id: ID): Project
+    userById(id: ID): User
     allNodes: [Node]
     allEdges: [Edge]
     allProjects: [Project]
-
+    allUsers: [User]
 }
 
 enum NodeType {

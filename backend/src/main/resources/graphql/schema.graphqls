@@ -2,6 +2,11 @@ type Query {
     nodeById(id: ID): Node
     edgeById(id: ID): Edge
     projectById(id: ID): Project
+    projectMemberById(id: ID): ProjectMember
+    projectMembershipsByUserId(userId: ID!): [ProjectMember]
+    projectMembershipsByProjectId(projectId: ID!): [ProjectMember]
+    projectMembershipsByUserIdAndProjectRole(userId: ID!, projectRole: ProjectRole!): [ProjectMember]
+    userRoleInProject(userId: ID!, projectId: ID!): ProjectRole
     userById(id: ID): User
     allNodes: [Node]
     allEdges: [Edge]
@@ -36,6 +41,12 @@ type Project {
     description: String
     nodes: [Node]
     edges: [Edge]
+    members: [ProjectMember]
+    createdBy: User
+    createdAt: String
+    updatedAt: String
+    isPublic: Boolean
+
 }
 
 enum UserRole {
@@ -48,4 +59,19 @@ type User {
     username: String
     email: String
     role: UserRole
+    projectMemberships: [ProjectMember]
+}
+
+type ProjectMember {
+    id: ID!
+    user: User
+    project: Project
+    projectRole: ProjectRole
+    joinedAt: String
+}
+
+enum ProjectRole {
+    OWNER
+    EDITOR
+    VIEWER
 }

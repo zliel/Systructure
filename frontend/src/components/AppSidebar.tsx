@@ -21,10 +21,14 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarHeader,
   SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { Card, CardContent } from '@/components/ui/card'
 import { memo } from "react"
 
 // Toolbox items for dragging
@@ -165,27 +169,35 @@ interface SidebarProps {
 }
 
 export const AppSidebar = memo(function AppSidebar({ onDragStart }: SidebarProps) {
+
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <ProjectSwitcher projects={data.teams} />
+      <SidebarHeader className="group-data-[collapsible=icon]:items-center">
+        <div className="flex w-full items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2">
+          <ProjectSwitcher projects={data.teams} />
+          <SidebarTrigger />
+        </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup className="gap-3">
+        <SidebarGroup>
           <SidebarGroupLabel>Components</SidebarGroupLabel>
-          {toolboxItems.map((item) => (
-            <Card
-              key={item.type}
-              className="cursor-grab active:cursor-grabbing hover:border-primary transition-colors p-1"
-              draggable
-              onDragStart={(e) => onDragStart(e, item.type)}
-            >
-              <CardContent className="flex items-center gap-3 p-3">
-                <item.icon className="h-5 w-5 text-primary" />
-                <span className="text-sm font-medium">{item.label}</span>
-              </CardContent>
-            </Card>
-          ))}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {toolboxItems.map((item) => (
+                <SidebarMenuItem key={item.type}>
+                  <SidebarMenuButton
+                    tooltip={item.label}
+                    className="cursor-grab active:cursor-grabbing"
+                    draggable
+                    onDragStart={(e) => onDragStart(e, item.type)}
+                  >
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>

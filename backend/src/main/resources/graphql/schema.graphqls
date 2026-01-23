@@ -1,0 +1,77 @@
+type Query {
+    nodeById(id: ID): Node
+    edgeById(id: ID): Edge
+    projectById(id: ID): Project
+    projectMemberById(id: ID): ProjectMember
+    projectMembershipsByUserId(userId: ID!): [ProjectMember]
+    projectMembershipsByProjectId(projectId: ID!): [ProjectMember]
+    projectMembershipsByUserIdAndProjectRole(userId: ID!, projectRole: ProjectRole!): [ProjectMember]
+    userRoleInProject(userId: ID!, projectId: ID!): ProjectRole
+    userById(id: ID): User
+    allNodes: [Node]
+    allEdges: [Edge]
+    allProjects: [Project]
+    allUsers: [User]
+}
+
+enum NodeType {
+    DATABASE
+    GATEWAY
+    QUEUE
+    SERVICE
+}
+
+type Node {
+    id: ID!
+    name: String
+    type: NodeType
+    xPos: Float
+    yPos: Float
+}
+
+type Edge {
+    id: ID!
+    sourceNode: Node
+    targetNode: Node
+}
+
+type Project {
+    id: ID!
+    name: String
+    description: String
+    nodes: [Node]
+    edges: [Edge]
+    members: [ProjectMember]
+    createdBy: User
+    createdAt: String
+    updatedAt: String
+    isPublic: Boolean
+
+}
+
+enum UserRole {
+    ADMIN
+    USER
+}
+
+type User {
+    id: ID!
+    username: String
+    email: String
+    role: UserRole
+    projectMemberships: [ProjectMember]
+}
+
+type ProjectMember {
+    id: ID!
+    user: User
+    project: Project
+    projectRole: ProjectRole
+    joinedAt: String
+}
+
+enum ProjectRole {
+    OWNER
+    EDITOR
+    VIEWER
+}

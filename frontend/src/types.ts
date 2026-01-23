@@ -7,17 +7,17 @@ export const NodeType = {
 export type NodeType = typeof NodeType[keyof typeof NodeType];
 
 export interface Node {
-  id: Number;
+  id: number;
   type: NodeType;
-  name: String;
-  xPos: Number;
-  yPos: Number;
+  name: string;
+  xPos: number;
+  yPos: number;
 }
 
 export interface Edge {
-  id: Number;
-  sourceNodeId: Number;
-  targetNodeId: Number;
+  id: number;
+  sourceNodeId: number;
+  targetNodeId: number;
 }
 
 export const Role = {
@@ -27,23 +27,23 @@ export const Role = {
 export type Role = typeof Role[keyof typeof Role];
 
 export interface User {
-  id: Number;
+  id: number;
   role: Role;
-  username: String;
-  email: String;
+  username: string;
+  email: string;
   projectMemberships: ProjectMember[];
 }
 
 export interface Project {
-  id: Number;
-  name: String;
-  description?: String;
+  id: number;
+  name: string;
+  description?: string;
   nodes: Node[];
   edges: Edge[];
   createdBy: User;
-  createdAt: String;
-  updatedAt: String;
-  isPublic: Boolean;
+  createdAt: string;
+  updatedAt: string;
+  isPublic: boolean;
   projectMembers: ProjectMember[];
 }
 
@@ -55,9 +55,9 @@ export const ProjectRole = {
 export type ProjectRole = typeof ProjectRole[keyof typeof ProjectRole];
 
 export interface ProjectMember {
-  id: Number;
+  id: number;
   project: Project;
   user: User;
   projectRole: ProjectRole;
-  joinedAt: String;
+  jionedAt: string;
 }

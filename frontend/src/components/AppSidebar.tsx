@@ -94,9 +94,9 @@ export const AppSidebar = memo(function AppSidebar({ onDragStart }: SidebarProps
           <SidebarGroupLabel>Components</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {toolboxItems.map((item, idx) => (
+              {toolboxItems.map((item) => (
                 <SidebarMenuItem key={item.type}>
-                  < SidebarMenuButton
+                  <SidebarMenuButton
                     tooltip={item.label}
                     className="cursor-grab active:cursor-grabbing border border-sidebar-border mb-2"
                     draggable

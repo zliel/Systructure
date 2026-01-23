@@ -4,12 +4,10 @@ import {
   Frame,
   Map,
   PieChart,
-  SquareTerminal,
   Languages,
   Server,
   MessageSquare,
   Network,
-  ListOrdered,
   Database
 } from "lucide-react"
 
@@ -58,93 +56,6 @@ const data = {
       plan: "Startup",
     },
   ],
-  navMain: [
-    {
-      title: "Service",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Database",
-      url: "#",
-      icon: Database,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Queue",
-      url: "#",
-      icon: ListOrdered,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Gateway",
-      url: "#",
-      icon: Server,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
   projects: [
     {
       name: "Design Engineering",
@@ -183,11 +94,11 @@ export const AppSidebar = memo(function AppSidebar({ onDragStart }: SidebarProps
           <SidebarGroupLabel>Components</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {toolboxItems.map((item) => (
+              {toolboxItems.map((item, idx) => (
                 <SidebarMenuItem key={item.type}>
-                  <SidebarMenuButton
+                  < SidebarMenuButton
                     tooltip={item.label}
-                    className="cursor-grab active:cursor-grabbing"
+                    className="cursor-grab active:cursor-grabbing border border-sidebar-border mb-2"
                     draggable
                     onDragStart={(e) => onDragStart(e, item.type)}
                   >
@@ -199,11 +110,11 @@ export const AppSidebar = memo(function AppSidebar({ onDragStart }: SidebarProps
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-      </SidebarContent>
+      </SidebarContent >
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
       <SidebarRail />
-    </Sidebar>
+    </Sidebar >
   )
 })

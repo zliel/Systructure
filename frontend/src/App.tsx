@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -16,65 +16,64 @@ import {
 
 import '@xyflow/react/dist/style.css';
 import { AppSidebar } from './components/AppSidebar';
+import { mapProjectEdgesToFlowEdges, mapProjectNodesToFlowNodes } from './utils/transformers';
+import { type Node as ProjectNode, type Edge as ProjectEdge } from './types';
 
+const dummyNodes: ProjectNode[] = [
+  {
+    id: 1,
+    name: 'Node 1',
+    type: 'SERVICE',
+    xPos: 0,
+    yPos: 150,
+  },
+  {
+    id: 2,
+    name: 'Node 2',
+    type: 'DATABASE',
+    xPos: 250,
+    yPos: 0,
+  },
+  {
+    id: 3,
+    name: 'Node 3',
+    type: 'QUEUE',
+    xPos: 250,
+    yPos: 150,
+  },
+  {
+    id: 4,
+    name: 'Node 4',
+    type: 'GATEWAY',
+    xPos: 250,
+    yPos: 300,
+  }
+]
 
-const nodeDefaults = {
-  sourcePosition: Position.Right,
-  targetPosition: Position.Left,
-};
-
-const initialNodes: Node[] = [
+const dummyEdges: ProjectEdge[] = [
   {
-    id: '1',
-    position: { x: 0, y: 150 },
-    data: { label: 'default style 1' },
-    ...nodeDefaults,
+    id: 1,
+    sourceNodeId: 1,
+    targetNodeId: 2,
   },
   {
-    id: '2',
-    position: { x: 250, y: 0 },
-    data: { label: 'default style 2' },
-    ...nodeDefaults,
+    id: 2,
+    sourceNodeId: 1,
+    targetNodeId: 3,
   },
   {
-    id: '3',
-    position: { x: 250, y: 150 },
-    data: { label: 'default style 3' },
-    ...nodeDefaults,
-  },
-  {
-    id: '4',
-    position: { x: 250, y: 300 },
-    data: { label: 'default style 4' },
-    ...nodeDefaults,
-  },
-];
-
-const initialEdges: Edge[] = [
-  {
-    id: 'e1-2',
-    source: '1',
-    target: '2',
-    animated: true,
-  },
-  {
-    id: 'e1-3',
-    source: '1',
-    target: '3',
-    animated: true,
-  },
-  {
-    id: 'e1-4',
-    source: '1',
-    target: '4',
-    animated: true,
-  },
+    id: 3,
+    sourceNodeId: 1,
+    targetNodeId: 4,
+  }
 ];
 
 const FlowContent = () => {
   const reactFlowWrapper = useRef(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const mappedNodes = mapProjectNodesToFlowNodes(dummyNodes);
+  const mappedEdges = mapProjectEdgesToFlowEdges(dummyEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(mappedNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(mappedEdges);
   const { screenToFlowPosition } = useReactFlow();
 
   const onConnect = useCallback(

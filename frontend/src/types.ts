@@ -59,5 +59,5 @@ export interface ProjectMember {
   project: Project;
   user: User;
   projectRole: ProjectRole;
-  jionedAt: string;
+  joinedAt: string;
 }

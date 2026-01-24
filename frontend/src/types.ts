@@ -16,8 +16,8 @@ export interface Node {
 
 export interface Edge {
   id: number;
-  sourceNodeId: number;
-  targetNodeId: number;
+  sourceNode: Node;
+  targetNode: Node;
 }
 
 export const Role = {

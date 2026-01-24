@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -10,69 +10,36 @@ import {
   useEdgesState,
   addEdge,
   type Node,
+  type Edge,
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
 import { AppSidebar } from './components/AppSidebar';
 import { mapProjectEdgesToFlowEdges, mapProjectNodesToFlowNodes } from './utils/transformers';
 import { type Node as ProjectNode, type Edge as ProjectEdge } from './types';
+import { useQuery } from '@apollo/client/react';
+import { GET_EDGES, GET_NODES } from './queries';
 
-const dummyNodes: ProjectNode[] = [
-  {
-    id: 1,
-    name: 'Node 1',
-    type: 'SERVICE',
-    xPos: 0,
-    yPos: 150,
-  },
-  {
-    id: 2,
-    name: 'Node 2',
-    type: 'DATABASE',
-    xPos: 250,
-    yPos: 0,
-  },
-  {
-    id: 3,
-    name: 'Node 3',
-    type: 'QUEUE',
-    xPos: 250,
-    yPos: 150,
-  },
-  {
-    id: 4,
-    name: 'Node 4',
-    type: 'GATEWAY',
-    xPos: 250,
-    yPos: 300,
-  }
-]
-
-const dummyEdges: ProjectEdge[] = [
-  {
-    id: 1,
-    sourceNodeId: 1,
-    targetNodeId: 2,
-  },
-  {
-    id: 2,
-    sourceNodeId: 1,
-    targetNodeId: 3,
-  },
-  {
-    id: 3,
-    sourceNodeId: 1,
-    targetNodeId: 4,
-  }
-];
 
 const FlowContent = () => {
   const reactFlowWrapper = useRef(null);
-  const mappedNodes = mapProjectNodesToFlowNodes(dummyNodes);
-  const mappedEdges = mapProjectEdgesToFlowEdges(dummyEdges);
-  const [nodes, setNodes, onNodesChange] = useNodesState(mappedNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(mappedEdges);
+
+  const { loading, error, data: projectNodes } = useQuery<ProjectNode[]>(GET_NODES);
+  const { loading: edgesLoading, error: edgesError, data: projectEdges } = useQuery<ProjectEdge[]>(GET_EDGES);
+  const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
   const { screenToFlowPosition } = useReactFlow();
+  console.dir(projectEdges);
+
+  useEffect(() => {
+    if (projectNodes && projectEdges) {
+      const mappedNodes = mapProjectNodesToFlowNodes(projectNodes.allNodes);
+      const mappedEdges = mapProjectEdgesToFlowEdges(projectEdges.allEdges);
+
+      setNodes(mappedNodes);
+      setEdges(mappedEdges);
+    }
+  }, [projectNodes, projectEdges, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: any) => setEdges((els) => addEdge(params, els)),

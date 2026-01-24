@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ChevronsUpDown, Plus } from "lucide-react"
+import { ChevronsUpDown, Languages, Plus } from "lucide-react"
 
 import {
   DropdownMenu,
@@ -16,18 +16,17 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import type { Project, ProjectMember } from "@/types"
 
 export function ProjectSwitcher({
   projects
 }: {
-  projects: {
-    name: string
-    logo: React.ElementType
-    plan: string
-  }[]
+  projects: ProjectMember[]
 }) {
+  console.log("projects", projects)
   const { isMobile } = useSidebar()
-  const [activeProject, setActiveProject] = React.useState(projects[0])
+  const [activeProject, setActiveProject] = React.useState<Project>(projects[0].project)
+  console.log("activeProject", activeProject)
   if (!activeProject) {
     return null
   }
@@ -42,7 +41,7 @@ export function ProjectSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="bg-sidebar-primary text-sidebar-primary-foreground border border-sidebar-accent-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <activeProject.logo className="size-4" />
+                <Languages size="4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{activeProject.name}</span>
@@ -61,14 +60,15 @@ export function ProjectSwitcher({
             </DropdownMenuLabel>
             {projects.map((project, index) => (
               <DropdownMenuItem
-                key={project.name}
-                onClick={() => setActiveProject(project)}
+                key={project.project.name}
+                onClick={() => setActiveProject(project.project)}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-md border">
-                  <project.logo className="size-3.5 shrink-0" />
+                  {/* <project.logo className="size-3.5 shrink-0" /> */}
+                  <Languages className="size-4" />
                 </div>
-                {project.name}
+                {project.project.name}
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}

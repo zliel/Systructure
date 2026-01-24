@@ -94,7 +94,7 @@ export const AppSidebar = memo(function AppSidebar({ onDragStart }: SidebarProps
     <Sidebar collapsible="icon">
       <SidebarHeader className="group-data-[collapsible=icon]:items-center">
         <div className="flex w-full items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2">
-          <ProjectSwitcher projects={dummyData.teams} />
+          <ProjectSwitcher projects={data!.userById.projectMemberships} />
           <SidebarTrigger />
         </div>
       </SidebarHeader>

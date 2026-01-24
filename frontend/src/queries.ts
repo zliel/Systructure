@@ -65,6 +65,7 @@ export const GET_USER = gql`
         joinedAt
         project {
           id
+          name
         }
       }
     }

@@ -51,3 +51,22 @@ export const GET_PROJECT_COMPONENTS = gql`
     }
   }
 `
+
+export const GET_USER = gql`
+  query GetUser($userId: ID!) {
+    userById(id: $userId) {
+      id
+      username
+      email
+      role
+      projectMemberships {
+        id
+        projectRole
+        joinedAt
+        project {
+          id
+        }
+      }
+    }
+  }
+`

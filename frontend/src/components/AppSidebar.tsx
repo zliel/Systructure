@@ -30,6 +30,9 @@ import {
 } from "@/components/ui/sidebar"
 import { memo } from "react"
 import { Button } from "./ui/button"
+import { useQuery } from "@apollo/client/react"
+import { GET_USER } from "@/queries"
+import type { User } from "@/types"
 
 // Toolbox items for dragging
 const toolboxItems = [
@@ -40,7 +43,7 @@ const toolboxItems = [
 ]
 
 // This is sample data.
-const data = {
+const dummyData = {
   user: {
     name: "zliel",
     email: "zpliel@gmail.com",
@@ -82,12 +85,16 @@ interface SidebarProps {
 }
 
 export const AppSidebar = memo(function AppSidebar({ onDragStart }: SidebarProps) {
+  const { loading, error, data } = useQuery<{ userById: User }>(GET_USER, { variables: { userId: 203 } });
+  console.log("User data:", data);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="group-data-[collapsible=icon]:items-center">
         <div className="flex w-full items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2">
-          <ProjectSwitcher projects={data.teams} />
+          <ProjectSwitcher projects={dummyData.teams} />
           <SidebarTrigger />
         </div>
       </SidebarHeader>
@@ -118,7 +125,7 @@ export const AppSidebar = memo(function AppSidebar({ onDragStart }: SidebarProps
           <Container className="size-5 shrink-0" />
           <span className="truncate">Docker Compose</span>
         </Button>
-        <NavUser user={data.user} />
+        <NavUser user={data!.userById} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar >

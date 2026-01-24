@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -9,9 +9,7 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
-  Position,
   type Node,
-  type Edge,
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';

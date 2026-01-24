@@ -18,7 +18,7 @@ import { AppSidebar } from './components/AppSidebar';
 import { mapProjectEdgesToFlowEdges, mapProjectNodesToFlowNodes } from './utils/transformers';
 import { type Node as ProjectNode, type Edge as ProjectEdge } from './types';
 import { useQuery } from '@apollo/client/react';
-import { GET_EDGES, GET_NODES, GET_PROJECT_COMPONENTS as GET_PROJECT_COMPONENTS } from './queries';
+import { GET_PROJECT_COMPONENTS } from './queries';
 import { SpinnerBadge } from './components/SpinnerBadge';
 
 interface ProjectComponents {

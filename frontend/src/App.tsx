@@ -18,28 +18,32 @@ import { AppSidebar } from './components/AppSidebar';
 import { mapProjectEdgesToFlowEdges, mapProjectNodesToFlowNodes } from './utils/transformers';
 import { type Node as ProjectNode, type Edge as ProjectEdge } from './types';
 import { useQuery } from '@apollo/client/react';
-import { GET_EDGES, GET_NODES } from './queries';
+import { GET_EDGES, GET_NODES, GET_PROJECT_COMPONENTS as GET_PROJECT_COMPONENTS } from './queries';
+import { SpinnerBadge } from './components/SpinnerBadge';
 
-
+interface ProjectComponents {
+  id: number;
+  name: string;
+  nodes: ProjectNode[];
+  edges: ProjectEdge[];
+}
 const FlowContent = () => {
   const reactFlowWrapper = useRef(null);
 
-  const { loading, error, data: projectNodes } = useQuery<ProjectNode[]>(GET_NODES);
-  const { loading: edgesLoading, error: edgesError, data: projectEdges } = useQuery<ProjectEdge[]>(GET_EDGES);
+  const { loading, error, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId: 153 } });
   const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
   const { screenToFlowPosition } = useReactFlow();
-  console.dir(projectEdges);
 
   useEffect(() => {
-    if (projectNodes && projectEdges) {
-      const mappedNodes = mapProjectNodesToFlowNodes(projectNodes.allNodes);
-      const mappedEdges = mapProjectEdgesToFlowEdges(projectEdges.allEdges);
+    if (data) {
+      const mappedNodes = mapProjectNodesToFlowNodes(data.projectById.nodes);
+      const mappedEdges = mapProjectEdgesToFlowEdges(data.projectById.edges);
 
       setNodes(mappedNodes);
       setEdges(mappedEdges);
     }
-  }, [projectNodes, projectEdges, setNodes, setEdges]);
+  }, [data, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: any) => setEdges((els) => addEdge(params, els)),
@@ -102,6 +106,11 @@ const FlowContent = () => {
           <Controls />
           <MiniMap />
         </ReactFlow>
+        {loading && (
+          <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 100 }}>
+            <SpinnerBadge text="Loading" />
+          </div>
+        )}
       </div>
     </div>
   );

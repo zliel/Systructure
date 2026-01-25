@@ -20,6 +20,7 @@ import { type Node as ProjectNode, type Edge as ProjectEdge } from './types';
 import { useQuery } from '@apollo/client/react';
 import { GET_PROJECT_COMPONENTS } from './queries';
 import { SpinnerBadge } from './components/SpinnerBadge';
+import { ThemeToggle } from './components/theme-toggle';
 import { useTheme } from './components/theme-provider';
 
 interface ProjectComponents {
@@ -111,6 +112,10 @@ const FlowContent = () => {
           <Controls />
           <MiniMap />
         </ReactFlow>
+
+        <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 100 }}>
+          <ThemeToggle />
+        </div>
         {loading && (
           <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 100 }}>
             <SpinnerBadge text="Loading" />

@@ -30,6 +30,9 @@ import {
 } from "@/components/ui/sidebar"
 import { memo } from "react"
 import { Button } from "./ui/button"
+import { useQuery } from "@apollo/client/react"
+import { GET_USER } from "@/queries"
+import type { User } from "@/types"
 
 // Toolbox items for dragging
 const toolboxItems = [
@@ -40,7 +43,7 @@ const toolboxItems = [
 ]
 
 // This is sample data.
-const data = {
+const dummyData = {
   user: {
     name: "zliel",
     email: "zpliel@gmail.com",
@@ -82,12 +85,16 @@ interface SidebarProps {
 }
 
 export const AppSidebar = memo(function AppSidebar({ onDragStart }: SidebarProps) {
+  const { loading, error, data } = useQuery<{ userById: User }>(GET_USER, { variables: { userId: 203 } });
+  console.log("User data:", data);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="group-data-[collapsible=icon]:items-center">
         <div className="flex w-full items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2">
-          <ProjectSwitcher projects={data.teams} />
+          <ProjectSwitcher projects={data!.userById.projectMemberships} />
           <SidebarTrigger />
         </div>
       </SidebarHeader>
@@ -114,10 +121,11 @@ export const AppSidebar = memo(function AppSidebar({ onDragStart }: SidebarProps
         </SidebarGroup>
       </SidebarContent >
       <SidebarFooter>
-        <Button variant="outline" className="w-full mb-4 hover:border-primary/40 hover:text-primary" >
-          <Container className="inline-block mr-2 size-5" />Docker Compose
+        <Button variant="outline" className="w-full justify-start gap-2 overflow-hidden mb-4 hover:border-primary/40 hover:text-primary group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-1.5!" >
+          <Container className="size-5 shrink-0" />
+          <span className="truncate">Docker Compose</span>
         </Button>
-        <NavUser user={data.user} />
+        <NavUser user={data!.userById} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar >

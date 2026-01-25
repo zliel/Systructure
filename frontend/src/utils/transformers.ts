@@ -15,8 +15,8 @@ export function mapProjectNodesToFlowNodes(projectNodes: ProjectNode[]): FlowNod
 export function mapProjectEdgesToFlowEdges(projectEdges: ProjectEdge[]): FlowEdge[] {
   return projectEdges.map((edge) => ({
     id: edge.id.toString(),
-    source: edge.sourceNodeId.toString(),
-    target: edge.targetNodeId.toString(),
+    source: edge.sourceNode.id.toString(),
+    target: edge.targetNode.id.toString(),
     animated: true,
   }));
 }

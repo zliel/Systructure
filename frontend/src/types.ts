@@ -16,8 +16,8 @@ export interface Node {
 
 export interface Edge {
   id: number;
-  sourceNodeId: number;
-  targetNodeId: number;
+  sourceNode: Node;
+  targetNode: Node;
 }
 
 export const Role = {
@@ -59,5 +59,5 @@ export interface ProjectMember {
   project: Project;
   user: User;
   projectRole: ProjectRole;
-  jionedAt: string;
+  joinedAt: string;
 }

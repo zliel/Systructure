@@ -20,4 +20,8 @@ public class Node {
     public NodeType type;
     public Float xPos;
     public Float yPos;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
 }

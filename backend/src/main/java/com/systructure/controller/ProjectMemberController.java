@@ -13,6 +13,8 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class ProjectMemberController {
@@ -28,6 +30,15 @@ public class ProjectMemberController {
     @QueryMapping
     public ProjectRole userRoleInProject(@Argument Long userId, @Argument Long projectId) {
         return projectMemberRepository.findRoleByProjectIdAndUserId(projectId, userId).orElse(null);
+    }
+
+    @QueryMapping
+    public List<ProjectMember> projectMembershipsByUserId(@Argument Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return List.of();
+        }
+        return projectMemberRepository.findByUser(user);
     }
 
     @SchemaMapping

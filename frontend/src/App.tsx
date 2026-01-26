@@ -105,8 +105,8 @@ const FlowContent = () => {
       if (!flowBounds) return;
 
       const position = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
+        x: event.clientX - flowBounds.left / 2,
+        y: event.clientY - flowBounds.top / 2,
       });
 
       const nodeInput: NodeInput = {

@@ -6,6 +6,7 @@ import App from "./App.tsx"
 import { SidebarProvider } from "./components/ui/sidebar.tsx"
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client"
 import { ApolloProvider } from "@apollo/client/react"
+import { ThemeProvider } from "./components/theme-provider.tsx"
 
 const apolloClient = new ApolloClient({
   link: new HttpLink({
@@ -16,10 +17,12 @@ const apolloClient = new ApolloClient({
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ApolloProvider client={apolloClient}>
-      <SidebarProvider>
-        <App />
-      </SidebarProvider>
-    </ApolloProvider>
+    <ThemeProvider defaultTheme="dark" storageKey="app-theme">
+      <ApolloProvider client={apolloClient}>
+        <SidebarProvider>
+          <App />
+        </SidebarProvider>
+      </ApolloProvider>
+    </ThemeProvider>
   </StrictMode >
 )

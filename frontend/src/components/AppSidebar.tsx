@@ -1,10 +1,5 @@
 import * as React from "react"
 import {
-  AudioWaveform,
-  Frame,
-  Map,
-  PieChart,
-  Languages,
   Server,
   MessageSquare,
   Network,
@@ -41,44 +36,6 @@ const toolboxItems = [
   { type: 'QUEUE', label: 'Queue', icon: MessageSquare },
   { type: 'GATEWAY', label: 'Gateway', icon: Network },
 ]
-
-// This is sample data.
-const dummyData = {
-  user: {
-    name: "zliel",
-    email: "zpliel@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "LinguaTile",
-      logo: Languages,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-}
 
 interface SidebarProps {
   onDragStart: (event: React.DragEvent, nodeType: string) => void

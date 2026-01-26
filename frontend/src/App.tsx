@@ -20,6 +20,8 @@ import { type Node as ProjectNode, type Edge as ProjectEdge } from './types';
 import { useQuery } from '@apollo/client/react';
 import { GET_PROJECT_COMPONENTS } from './queries';
 import { SpinnerBadge } from './components/SpinnerBadge';
+import { ThemeToggle } from './components/theme-toggle';
+import { useTheme } from './components/theme-provider';
 
 interface ProjectComponents {
   id: number;
@@ -34,7 +36,7 @@ const FlowContent = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
   const { screenToFlowPosition } = useReactFlow();
-
+  const { theme } = useTheme();
   useEffect(() => {
     if (data) {
       const mappedNodes = mapProjectNodesToFlowNodes(data.projectById.nodes);
@@ -100,14 +102,22 @@ const FlowContent = () => {
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          colorMode={theme === 'dark' ? 'dark' : 'light'}
+          defaultEdgeOptions={
+            { animated: true }
+          }
           fitView
         >
           <Background />
           <Controls />
           <MiniMap />
         </ReactFlow>
+
+        <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 100 }}>
+          <ThemeToggle />
+        </div>
         {loading && (
-          <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 100 }}>
+          <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
             <SpinnerBadge text="Loading" />
           </div>
         )}

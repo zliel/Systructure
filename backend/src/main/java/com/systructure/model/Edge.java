@@ -22,4 +22,8 @@ public class Edge {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_node_id", nullable = false)
     public Node targetNode;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
 }

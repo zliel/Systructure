@@ -13,6 +13,18 @@ export const GET_NODES = gql`
   }
 `
 
+export const CREATE_NODE = gql`
+  mutation CreateNode($input: NodeInput!) {
+    createNode(newNodeData: $input) {
+      id
+      name
+      type
+      xPos
+      yPos
+    }
+  }
+`
+
 export const GET_EDGES = gql`
   query GetEdges {
     allEdges {
@@ -21,6 +33,26 @@ export const GET_EDGES = gql`
         id
       }
       targetNode {
+        id
+      }
+      project {
+        id
+      }
+    }
+  }
+`
+
+export const CREATE_EDGE = gql`
+  mutation CreateEdge($input: EdgeInput!) {
+    createEdge(newEdgeData: $input) {
+      id
+      sourceNode {
+        id
+      }
+      targetNode {
+        id
+      }
+      project {
         id
       }
     }

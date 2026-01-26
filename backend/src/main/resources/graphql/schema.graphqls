@@ -14,6 +14,36 @@ type Query {
     allUsers: [User]
 }
 
+type Mutation {
+    createNode(newNodeData: NodeInput!): Node
+    createEdge(newEdgeData: EdgeInput!): Edge
+    updateProject(id: ID!, updatedProjectData: ProjectInput): Project
+}
+
+input NodeInput {
+    name: String!
+    type: NodeType
+    xPos: Float
+    yPos: Float
+    projectId: ID
+}
+
+input EdgeInput {
+    sourceNodeId: ID!
+    targetNodeId: ID!
+    projectId: ID
+}
+
+input ProjectInput {
+    name: String
+    description: String
+    createdById: ID
+    isPublic: Boolean
+    nodeIds: [ID]
+    edgeIds: [ID]
+    memberIds: [ID]
+}
+
 enum NodeType {
     DATABASE
     GATEWAY
@@ -27,12 +57,14 @@ type Node {
     type: NodeType
     xPos: Float
     yPos: Float
+    project: Project!
 }
 
 type Edge {
     id: ID!
     sourceNode: Node
     targetNode: Node
+    project: Project!
 }
 
 type Project {

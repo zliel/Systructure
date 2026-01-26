@@ -14,10 +14,24 @@ export interface Node {
   yPos: number;
 }
 
+export interface NodeInput {
+  type: NodeType;
+  name: string;
+  xPos: number;
+  yPos: number;
+  projectId: number;
+}
+
 export interface Edge {
   id: number;
   sourceNode: Node;
   targetNode: Node;
+}
+
+export interface EdgeInput {
+  sourceNodeId: number;
+  targetNodeId: number;
+  projectId: number;
 }
 
 export const Role = {

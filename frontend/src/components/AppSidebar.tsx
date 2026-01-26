@@ -39,10 +39,11 @@ const toolboxItems = [
 
 interface SidebarProps {
   onDragStart: (event: React.DragEvent, nodeType: string) => void
+  onDoubleClick: (nodeType: string) => void
 }
 
-export const AppSidebar = memo(function AppSidebar({ onDragStart }: SidebarProps) {
-  const { loading, error, data } = useQuery<{ userById: User }>(GET_USER, { variables: { userId: 203 } });
+export const AppSidebar = memo(function AppSidebar({ onDragStart, onDoubleClick }: SidebarProps) {
+  const { loading, error, data } = useQuery<{ userById: User }>(GET_USER, { variables: { userId: 503 } });
   console.log("User data:", data);
 
   if (loading) return <div>Loading...</div>;
@@ -67,6 +68,7 @@ export const AppSidebar = memo(function AppSidebar({ onDragStart }: SidebarProps
                     className="cursor-grab active:cursor-grabbing border border-sidebar-border mb-2"
                     draggable
                     onDragStart={(e) => onDragStart(e, item.type)}
+                    onDoubleClick={() => onDoubleClick && onDoubleClick(item.type)}
                   >
                     <item.icon />
                     <span>{item.label}</span>

@@ -11,14 +11,15 @@ import {
   addEdge,
   type Node,
   type Edge,
+  Position,
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
 import { AppSidebar } from './components/AppSidebar';
 import { mapProjectEdgesToFlowEdges, mapProjectNodesToFlowNodes } from './utils/transformers';
-import { type Node as ProjectNode, type Edge as ProjectEdge } from './types';
-import { useQuery } from '@apollo/client/react';
-import { GET_PROJECT_COMPONENTS } from './queries';
+import { type Node as ProjectNode, type Edge as ProjectEdge, NodeType, type NodeInput, type EdgeInput } from './types';
+import { useMutation, useQuery } from '@apollo/client/react';
+import { CREATE_EDGE, CREATE_NODE, GET_PROJECT_COMPONENTS } from './queries';
 import { SpinnerBadge } from './components/SpinnerBadge';
 import { ThemeToggle } from './components/theme-toggle';
 import { useTheme } from './components/theme-provider';
@@ -30,12 +31,29 @@ interface ProjectComponents {
   edges: ProjectEdge[];
 }
 const FlowContent = () => {
-  const reactFlowWrapper = useRef(null);
-
-  const { loading, error, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId: 153 } });
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
   const { screenToFlowPosition } = useReactFlow();
+  const { loading, error, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId: 403 } });
+  const [createNode] = useMutation<{ createNode: ProjectNode }>(CREATE_NODE, {
+    onCompleted: (data) => {
+      const newNode: Node = {
+        id: `${data.createNode.id}`,
+        type: 'default',
+        position: {
+          x: data.createNode.xPos,
+          y: data.createNode.yPos,
+        },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        data: { label: data.createNode.name },
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+    }
+  });
+  const [createEdge] = useMutation<{ createEdge: ProjectEdge }>(CREATE_EDGE);
   const { theme } = useTheme();
   useEffect(() => {
     if (data) {
@@ -48,14 +66,24 @@ const FlowContent = () => {
   }, [data, setNodes, setEdges]);
 
   const onConnect = useCallback(
-    (params: any) => setEdges((els) => addEdge(params, els)),
+    (params: any) => {
+      setEdges((els) => addEdge(params, els));
+
+      const edgeInput: EdgeInput = {
+        sourceNodeId: parseInt(params.source),
+        targetNodeId: parseInt(params.target),
+        projectId: 403,
+      }
+
+      createEdge({ variables: { input: edgeInput } });
+    },
     [],
   );
 
-  const onDragStart = (event: React.DragEvent, nodeType: string) => {
+  const onDragStart = useCallback((event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
-  };
+  }, []);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -73,26 +101,54 @@ const FlowContent = () => {
         return;
       }
 
+      const flowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+      if (!flowBounds) return;
+
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
-      const newNode: Node = {
-        id: `${type}-${Date.now()}`,
-        type: 'default',
-        position,
-        data: { label: `${type} node` },
+      const nodeInput: NodeInput = {
+        type: type as NodeType,
+        name: `${type} node(created)`,
+        xPos: position.x,
+        yPos: position.y,
+        projectId: 403,
       };
 
-      setNodes((nds) => nds.concat(newNode));
+      createNode({ variables: { input: nodeInput } });
     },
     [screenToFlowPosition, setNodes],
   );
 
+  const onClickComponent = useCallback(
+    (type: string) => {
+      const flowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+      if (!flowBounds) return;
+
+      const position = screenToFlowPosition({
+        x: flowBounds.left + flowBounds.width / 2,
+        y: flowBounds.top + flowBounds.height / 2,
+      });
+
+      const nodeInput: NodeInput = {
+        type: type as NodeType,
+        name: `${type} node(created)`,
+        xPos: position.x,
+        yPos: position.y,
+        projectId: 403,
+      };
+
+      createNode({ variables: { input: nodeInput } });
+    },
+    [screenToFlowPosition, setNodes],
+  );
+
+
   return (
     <div className="flex h-screen w-screen" ref={reactFlowWrapper}>
-      <AppSidebar onDragStart={onDragStart} />
+      <AppSidebar onDragStart={onDragStart} onDoubleClick={onClickComponent} />
       <div className="flex-1 h-full">
         <ReactFlow
           nodes={nodes}

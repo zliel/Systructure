@@ -30,12 +30,13 @@ interface ProjectComponents {
   nodes: ProjectNode[];
   edges: ProjectEdge[];
 }
+const PROJECT_ID = 552;
 const FlowContent = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
   const { screenToFlowPosition } = useReactFlow();
-  const { loading, error, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId: 403 } });
+  const { loading, error, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId: PROJECT_ID } });
   const [createNode] = useMutation<{ createNode: ProjectNode }>(CREATE_NODE, {
     onCompleted: (data) => {
       const newNode: Node = {
@@ -72,7 +73,7 @@ const FlowContent = () => {
       const edgeInput: EdgeInput = {
         sourceNodeId: parseInt(params.source),
         targetNodeId: parseInt(params.target),
-        projectId: 403,
+        projectId: PROJECT_ID,
       }
 
       createEdge({ variables: { input: edgeInput } });
@@ -114,7 +115,7 @@ const FlowContent = () => {
         name: `${type} node(created)`,
         xPos: position.x,
         yPos: position.y,
-        projectId: 403,
+        projectId: PROJECT_ID,
       };
 
       createNode({ variables: { input: nodeInput } });
@@ -137,7 +138,7 @@ const FlowContent = () => {
         name: `${type} node(created)`,
         xPos: position.x,
         yPos: position.y,
-        projectId: 403,
+        projectId: PROJECT_ID,
       };
 
       createNode({ variables: { input: nodeInput } });

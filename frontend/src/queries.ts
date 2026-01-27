@@ -25,6 +25,26 @@ export const CREATE_NODE = gql`
   }
 `
 
+export const DELETE_NODE = gql`
+  mutation DeleteNode($nodeId: ID!) {
+    deleteNode(id: $nodeId) {
+      id
+      name
+      type
+    }
+  }
+`
+
+export const DELETE_NODES = gql`
+  mutation DeleteNodes($nodeIds: [ID!]!) {
+    deleteNodes(ids: $nodeIds) {
+      id
+      name
+      type
+    }
+  }
+`
+
 export const GET_EDGES = gql`
   query GetEdges {
     allEdges {
@@ -53,6 +73,34 @@ export const CREATE_EDGE = gql`
         id
       }
       project {
+        id
+      }
+    }
+  }
+`
+
+export const DELETE_EDGE = gql`
+  mutation DeleteEdge($edgeId: ID!) {
+    deleteEdge(id: $edgeId) {
+      id
+      sourceNode {
+        id
+      }
+      targetNode {
+        id
+      }
+    }
+  }
+`
+
+export const DELETE_EDGES = gql`
+  mutation DeleteEdges($edgeIds: [ID!]!) {
+    deleteEdges(ids: $edgeIds) {
+      id
+      sourceNode {
+        id
+      }
+      targetNode {
         id
       }
     }

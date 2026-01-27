@@ -19,7 +19,7 @@ import { AppSidebar } from './components/AppSidebar';
 import { mapProjectEdgesToFlowEdges, mapProjectNodesToFlowNodes } from './utils/transformers';
 import { type Node as ProjectNode, type Edge as ProjectEdge, NodeType, type NodeInput, type EdgeInput } from './types';
 import { useMutation, useQuery } from '@apollo/client/react';
-import { CREATE_EDGE, CREATE_NODE, GET_PROJECT_COMPONENTS } from './queries';
+import { CREATE_EDGE, CREATE_NODE, DELETE_EDGE, DELETE_EDGES, DELETE_NODE, DELETE_NODES, GET_PROJECT_COMPONENTS } from './queries';
 import { SpinnerBadge } from './components/SpinnerBadge';
 import { ThemeToggle } from './components/theme-toggle';
 import { useTheme } from './components/theme-provider';
@@ -30,12 +30,13 @@ interface ProjectComponents {
   nodes: ProjectNode[];
   edges: ProjectEdge[];
 }
+const PROJECT_ID = 552;
 const FlowContent = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
   const { screenToFlowPosition } = useReactFlow();
-  const { loading, error, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId: 403 } });
+  const { loading, error, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId: PROJECT_ID } });
   const [createNode] = useMutation<{ createNode: ProjectNode }>(CREATE_NODE, {
     onCompleted: (data) => {
       const newNode: Node = {
@@ -53,7 +54,27 @@ const FlowContent = () => {
       setNodes((nds) => nds.concat(newNode));
     }
   });
-  const [createEdge] = useMutation<{ createEdge: ProjectEdge }>(CREATE_EDGE);
+  const [createEdge] = useMutation<{ createEdge: ProjectEdge }>(CREATE_EDGE, {
+    onCompleted: (data) => {
+      const newEdge: Edge = {
+        id: `${data.createEdge.id}`,
+        source: `${data.createEdge.sourceNode.id}`,
+        target: `${data.createEdge.targetNode.id}`,
+        animated: true,
+      };
+      setEdges((eds) => eds.concat(newEdge));
+    }
+  });
+  const [deleteNodes] = useMutation<{ deleteNode: ProjectNode }>(DELETE_NODES, {
+    onError: (error) => {
+      console.error("Error deleting nodes:", error);
+    }
+  });
+  const [deleteEdges] = useMutation<{ deleteEdge: ProjectEdge }>(DELETE_EDGES, {
+    onError: (error) => {
+      console.error("Error deleting edges:", error);
+    }
+  });
   const { theme } = useTheme();
   useEffect(() => {
     if (data) {
@@ -67,12 +88,10 @@ const FlowContent = () => {
 
   const onConnect = useCallback(
     (params: any) => {
-      setEdges((els) => addEdge(params, els));
-
       const edgeInput: EdgeInput = {
         sourceNodeId: parseInt(params.source),
         targetNodeId: parseInt(params.target),
-        projectId: 403,
+        projectId: PROJECT_ID,
       }
 
       createEdge({ variables: { input: edgeInput } });
@@ -114,12 +133,31 @@ const FlowContent = () => {
         name: `${type} node(created)`,
         xPos: position.x,
         yPos: position.y,
-        projectId: 403,
+        projectId: PROJECT_ID,
       };
 
       createNode({ variables: { input: nodeInput } });
     },
     [screenToFlowPosition, setNodes],
+  );
+
+  const onNodesDelete = useCallback(
+    (deletedNodes: Node[]) => {
+      const nodeIds = deletedNodes.map((node) => parseInt(node.id));
+      deleteNodes({ variables: { nodeIds } });
+      console.log('Deleted nodes:', deletedNodes);
+    },
+    [deleteNodes],
+  );
+
+  const onEdgesDelete = useCallback(
+    (deletedEdges: Edge[]) => {
+      const edgeIds = deletedEdges.map((edge) => parseInt(edge.id));
+      console.log('Edge IDs to delete:', edgeIds);
+      deleteEdges({ variables: { edgeIds } });
+      console.log('Deleted edges:', deletedEdges);
+    },
+    [deleteEdges],
   );
 
   const onClickComponent = useCallback(
@@ -137,7 +175,7 @@ const FlowContent = () => {
         name: `${type} node(created)`,
         xPos: position.x,
         yPos: position.y,
-        projectId: 403,
+        projectId: PROJECT_ID,
       };
 
       createNode({ variables: { input: nodeInput } });
@@ -154,7 +192,9 @@ const FlowContent = () => {
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
+          onNodesDelete={onNodesDelete}
           onEdgesChange={onEdgesChange}
+          onEdgesDelete={onEdgesDelete}
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}

@@ -2,6 +2,7 @@ package com.systructure.controller;
 
 import com.systructure.model.Node;
 import com.systructure.model.NodeType;
+import com.systructure.repository.EdgeRepository;
 import com.systructure.repository.NodeRepository;
 import com.systructure.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.List;
 public class NodeController {
 
     private final NodeRepository nodeRepository;
+    private final EdgeRepository edgeRepository;
     private final ProjectRepository projectRepository;
 
     @QueryMapping
@@ -38,6 +40,22 @@ public class NodeController {
         node.setYPos(newNodeData.yPos());
         node.setProject(projectRepository.findById(newNodeData.projectId()).orElse(null));
         return nodeRepository.save(node);
+    }
+
+    @MutationMapping
+    public Node deleteNode(@Argument Long id) {
+        Node node = nodeRepository.findById(id).orElse(null);
+        if (node != null) {
+            nodeRepository.delete(node);
+        }
+        return node;
+    }
+
+    @MutationMapping
+    public List<Node> deleteNodes(@Argument List<Long> ids) {
+        List<Node> nodes = nodeRepository.findAllById(ids);
+        nodeRepository.deleteAll(nodes);
+        return nodes;
     }
 
     public record NodeInput(String name, NodeType type, float xPos, float yPos, Long projectId) {

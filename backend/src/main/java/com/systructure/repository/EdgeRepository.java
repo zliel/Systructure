@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EdgeRepository extends JpaRepository<Edge, Long> {
+    public void deleteBySourceNodeIdOrTargetNodeId(Long sourceNode_id, Long targetNode_id);
 }

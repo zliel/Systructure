@@ -52,6 +52,22 @@ public class EdgeController {
         return edgeRepository.save(edge);
     }
 
+    @MutationMapping
+    public Edge deleteEdge(@Argument Long id) {
+        Edge edge = edgeRepository.findById(id).orElse(null);
+        if (edge != null) {
+            edgeRepository.delete(edge);
+        }
+        return edge;
+    }
+
+    @MutationMapping
+    public List<Edge> deleteEdges(@Argument List<Long> ids) {
+        List<Edge> edges = edgeRepository.findAllById(ids);
+        edgeRepository.deleteAll(edges);
+        return edges;
+    }
+
     public record EdgeInput(Long sourceNodeId, Long targetNodeId, Long projectId) {
     }
 }

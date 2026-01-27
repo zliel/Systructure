@@ -18,6 +18,10 @@ type Mutation {
     createNode(newNodeData: NodeInput!): Node
     createEdge(newEdgeData: EdgeInput!): Edge
     updateProject(id: ID!, updatedProjectData: ProjectInput): Project
+    deleteNode(id: ID!): Node
+    deleteNodes(ids: [ID!]!): [Node]
+    deleteEdge(id: ID!): Edge
+    deleteEdges(ids: [ID!]!): [Edge]
 }
 
 input NodeInput {

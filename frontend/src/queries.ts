@@ -1,6 +1,19 @@
 import { gql } from '@apollo/client';
 
 
+
+export const CREATE_NODE = gql`
+  mutation CreateNode($input: NodeInput!) {
+    createNode(newNodeData: $input) {
+      id
+      name
+      type
+      xPos
+      yPos
+    }
+  }
+`
+
 export const GET_NODES = gql`
   query GetNodes {
     allNodes {
@@ -13,9 +26,9 @@ export const GET_NODES = gql`
   }
 `
 
-export const CREATE_NODE = gql`
-  mutation CreateNode($input: NodeInput!) {
-    createNode(newNodeData: $input) {
+export const UPDATE_NODE = gql`
+  mutation UpdateNode($nodeId: ID!, $input: UpdateNodeInput!) {
+    updateNode(id: $nodeId, updatedNodeData: $input) {
       id
       name
       type
@@ -45,6 +58,24 @@ export const DELETE_NODES = gql`
   }
 `
 
+
+export const CREATE_EDGE = gql`
+  mutation CreateEdge($input: EdgeInput!) {
+    createEdge(newEdgeData: $input) {
+      id
+      sourceNode {
+        id
+      }
+      targetNode {
+        id
+      }
+      project {
+        id
+      }
+    }
+  }
+`
+
 export const GET_EDGES = gql`
   query GetEdges {
     allEdges {
@@ -62,9 +93,9 @@ export const GET_EDGES = gql`
   }
 `
 
-export const CREATE_EDGE = gql`
-  mutation CreateEdge($input: EdgeInput!) {
-    createEdge(newEdgeData: $input) {
+export const UPDATE_EDGE = gql`
+  mutation UpdateEdge($edgeId: ID!, $input: UpdateEdgeInput!) {
+    updateEdge(id: $edgeId, updatedEdgeData: $input) {
       id
       sourceNode {
         id

@@ -209,9 +209,6 @@ const FlowContent = () => {
           <MiniMap />
         </ReactFlow>
 
-        <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 100 }}>
-          <ThemeToggle />
-        </div>
         {loading && (
           <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
             <SpinnerBadge text="Loading" />

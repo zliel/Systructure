@@ -6,7 +6,7 @@ import {
   Database,
   Container
 } from "lucide-react"
-
+import { ThemeToggle } from "@/components/theme-toggle"
 import { NavUser } from "@/components/nav-user"
 import { ProjectSwitcher } from "@/components/project-switcher"
 import {
@@ -43,7 +43,7 @@ interface SidebarProps {
 }
 
 export const AppSidebar = memo(function AppSidebar({ onDragStart, onDoubleClick }: SidebarProps) {
-  const { loading, error, data } = useQuery<{ userById: User }>(GET_USER, { variables: { userId: 503 } });
+  const { loading, error, data } = useQuery<{ userById: User }>(GET_USER, { variables: { userId: 653 } });
   console.log("User data:", data);
 
   if (loading) return <div>Loading...</div>;
@@ -80,10 +80,13 @@ export const AppSidebar = memo(function AppSidebar({ onDragStart, onDoubleClick 
         </SidebarGroup>
       </SidebarContent >
       <SidebarFooter>
-        <Button variant="outline" className="w-full justify-start gap-2 overflow-hidden mb-4 hover:border-primary/40 hover:text-primary group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-1.5!" >
-          <Container className="size-5 shrink-0" />
-          <span className="truncate">Docker Compose</span>
-        </Button>
+        <div className="flex group-data-[collapsible=icon]:flex-col items-center gap-2 mb-4">
+          <Button variant="outline" className="flex-1 justify-start gap-2 overflow-hidden hover:border-primary/40 hover:text-primary group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-1.5!" >
+            <Container className="size-5 shrink-0" />
+            <span className="truncate">Docker Compose</span>
+          </Button>
+          <ThemeToggle />
+        </div>
         <NavUser user={data!.userById} />
       </SidebarFooter>
       <SidebarRail />

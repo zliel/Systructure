@@ -16,12 +16,14 @@ type Query {
 
 type Mutation {
     createNode(newNodeData: NodeInput!): Node
-    createEdge(newEdgeData: EdgeInput!): Edge
-    updateProject(id: ID!, updatedProjectData: ProjectInput): Project
+    updateNode(id: ID!, updatedNodeData: UpdateNodeInput!): Node
     deleteNode(id: ID!): Node
     deleteNodes(ids: [ID!]!): [Node]
+    createEdge(newEdgeData: EdgeInput!): Edge
+    updateEdge(id: ID!, updatedEdgeData: UpdateEdgeInput!): Edge
     deleteEdge(id: ID!): Edge
     deleteEdges(ids: [ID!]!): [Edge]
+    updateProject(id: ID!, updatedProjectData: ProjectInput): Project
 }
 
 input NodeInput {
@@ -32,9 +34,23 @@ input NodeInput {
     projectId: ID
 }
 
+input UpdateNodeInput {
+    name: String
+    type: NodeType
+    xPos: Float
+    yPos: Float
+    projectId: ID
+}
+
 input EdgeInput {
     sourceNodeId: ID!
     targetNodeId: ID!
+    projectId: ID
+}
+
+input UpdateEdgeInput {
+    sourceNodeId: ID
+    targetNodeId: ID
     projectId: ID
 }
 

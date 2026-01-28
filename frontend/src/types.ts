@@ -22,6 +22,14 @@ export interface NodeInput {
   projectId: number;
 }
 
+export interface UpdateNodeInput {
+  type: NodeType;
+  name: string;
+  xPos: number;
+  yPos: number;
+  projectId: number;
+}
+
 export interface Edge {
   id: number;
   sourceNode: Node;

@@ -53,6 +53,26 @@ public class EdgeController {
     }
 
     @MutationMapping
+    public Edge updateEdge(@Argument Long id, @Argument UpdateEdgeInput updatedEdgeData) {
+        Edge edge = edgeRepository.findById(id).orElse(null);
+        if (edge == null) {
+            return null;
+        }
+        if (updatedEdgeData.sourceNodeId() != null) {
+            Node sourceNode = nodeRepository.findById(updatedEdgeData.sourceNodeId()).orElse(null);
+            edge.setSourceNode(sourceNode);
+        }
+        if (updatedEdgeData.targetNodeId() != null) {
+            Node targetNode = nodeRepository.findById(updatedEdgeData.targetNodeId()).orElse(null);
+            edge.setTargetNode(targetNode);
+        }
+        if (updatedEdgeData.projectId() != null) {
+            edge.setProject(projectRepository.findById(updatedEdgeData.projectId()).orElse(null));
+        }
+        return edgeRepository.save(edge);
+    }
+
+    @MutationMapping
     public Edge deleteEdge(@Argument Long id) {
         Edge edge = edgeRepository.findById(id).orElse(null);
         if (edge != null) {
@@ -69,5 +89,8 @@ public class EdgeController {
     }
 
     public record EdgeInput(Long sourceNodeId, Long targetNodeId, Long projectId) {
+    }
+
+    public record UpdateEdgeInput(Long sourceNodeId, Long targetNodeId, Long projectId) {
     }
 }

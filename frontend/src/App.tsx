@@ -68,7 +68,8 @@ const FlowContent = () => {
   const [deleteNodes] = useMutation<{ deleteNode: ProjectNode }>(DELETE_NODES, {
     onError: (error) => {
       console.error("Error deleting nodes:", error);
-    }
+    },
+    refetchQueries: [{ query: GET_PROJECT_COMPONENTS, variables: { projectId: PROJECT_ID } }],
   });
   const [deleteEdges] = useMutation<{ deleteEdge: ProjectEdge }>(DELETE_EDGES, {
     onError: (error) => {

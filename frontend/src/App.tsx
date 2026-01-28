@@ -18,9 +18,8 @@ import { AppSidebar } from './components/AppSidebar';
 import { mapProjectEdgesToFlowEdges, mapProjectNodesToFlowNodes } from './utils/transformers';
 import { type Node as ProjectNode, type Edge as ProjectEdge, NodeType, type NodeInput, type EdgeInput } from './types';
 import { useMutation, useQuery } from '@apollo/client/react';
-import { CREATE_EDGE, CREATE_NODE, DELETE_EDGE, DELETE_EDGES, DELETE_NODE, DELETE_NODES, GET_PROJECT_COMPONENTS } from './queries';
+import { CREATE_EDGE, CREATE_NODE, DELETE_EDGES, DELETE_NODES, GET_PROJECT_COMPONENTS } from './queries';
 import { SpinnerBadge } from './components/SpinnerBadge';
-import { ThemeToggle } from './components/theme-toggle';
 import { useTheme } from './components/theme-provider';
 import { NodeDetailsPanel } from './components/NodeDetailsPanel';
 

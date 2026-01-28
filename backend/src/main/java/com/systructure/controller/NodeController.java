@@ -43,6 +43,30 @@ public class NodeController {
     }
 
     @MutationMapping
+    public Node updateNode(@Argument Long id, @Argument UpdateNodeInput updatedNodeData) {
+        Node node = nodeRepository.findById(id).orElse(null);
+        if (node == null) {
+            return null;
+        }
+        if (updatedNodeData.name() != null) {
+            node.setName(updatedNodeData.name());
+        }
+        if (updatedNodeData.type() != null) {
+            node.setType(updatedNodeData.type());
+        }
+        if (updatedNodeData.xPos() != null) {
+            node.setXPos(updatedNodeData.xPos());
+        }
+        if (updatedNodeData.yPos() != null) {
+            node.setYPos(updatedNodeData.yPos());
+        }
+        if (updatedNodeData.projectId() != null) {
+            node.setProject(projectRepository.findById(updatedNodeData.projectId()).orElse(null));
+        }
+        return nodeRepository.save(node);
+    }
+
+    @MutationMapping
     public Node deleteNode(@Argument Long id) {
         Node node = nodeRepository.findById(id).orElse(null);
         if (node != null) {
@@ -58,6 +82,9 @@ public class NodeController {
         return nodes;
     }
 
-    public record NodeInput(String name, NodeType type, float xPos, float yPos, Long projectId) {
+    public record NodeInput(String name, NodeType type, Float xPos, Float yPos, Long projectId) {
+    }
+
+    public record UpdateNodeInput(String name, NodeType type, Float xPos, Float yPos, Long projectId) {
     }
 }

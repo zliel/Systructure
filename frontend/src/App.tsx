@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -8,7 +8,6 @@ import {
   MiniMap,
   useNodesState,
   useEdgesState,
-  addEdge,
   type Node,
   type Edge,
   Position,
@@ -23,6 +22,7 @@ import { CREATE_EDGE, CREATE_NODE, DELETE_EDGE, DELETE_EDGES, DELETE_NODE, DELET
 import { SpinnerBadge } from './components/SpinnerBadge';
 import { ThemeToggle } from './components/theme-toggle';
 import { useTheme } from './components/theme-provider';
+import { NodeDetailsPanel } from './components/NodeDetailsPanel';
 
 interface ProjectComponents {
   id: number;
@@ -35,7 +35,7 @@ const FlowContent = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, updateNodeData } = useReactFlow();
   const { loading, error, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId: PROJECT_ID } });
   const [createNode] = useMutation<{ createNode: ProjectNode }>(CREATE_NODE, {
     onCompleted: (data) => {
@@ -48,7 +48,7 @@ const FlowContent = () => {
         },
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
-        data: { label: data.createNode.name },
+        data: { label: data.createNode.name, type: data.createNode.type },
       };
 
       setNodes((nds) => nds.concat(newNode));
@@ -76,6 +76,8 @@ const FlowContent = () => {
     }
   });
   const { theme } = useTheme();
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   useEffect(() => {
     if (data) {
       const mappedNodes = mapProjectNodesToFlowNodes(data.projectById.nodes);
@@ -183,6 +185,20 @@ const FlowContent = () => {
     [screenToFlowPosition, setNodes],
   );
 
+  const onNodeDoubleClick = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      setSelectedNode(node);
+      setIsPanelOpen(true);
+    },
+    [],
+  );
+
+  const handleNodeSave = useCallback(
+    (nodeId: string, updatedData: { label: string; type: NodeType }) => {
+      updateNodeData(nodeId, { label: updatedData.label });
+    },
+    [updateNodeData],
+  );
 
   return (
     <div className="flex h-screen w-screen" ref={reactFlowWrapper}>
@@ -196,6 +212,7 @@ const FlowContent = () => {
           onEdgesChange={onEdgesChange}
           onEdgesDelete={onEdgesDelete}
           onConnect={onConnect}
+          onNodeDoubleClick={onNodeDoubleClick}
           onDrop={onDrop}
           onDragOver={onDragOver}
           colorMode={theme === 'dark' ? 'dark' : 'light'}
@@ -214,6 +231,13 @@ const FlowContent = () => {
             <SpinnerBadge text="Loading" />
           </div>
         )}
+        <NodeDetailsPanel
+          node={selectedNode}
+          projectId={PROJECT_ID}
+          open={isPanelOpen}
+          onOpenChange={setIsPanelOpen}
+          onSave={handleNodeSave}
+        />
       </div>
     </div>
   );

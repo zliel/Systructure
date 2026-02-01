@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import { LayoutGrid } from "lucide-react"
 
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useAuth } from "@/contexts/AuthContext"
 
 import {
   DropdownMenu,
@@ -21,13 +22,13 @@ import {
   LogOut,
   Sparkles
 } from "lucide-react"
-import { useQuery } from "@apollo/client/react"
-import { GET_USER } from "@/queries"
-import type { User } from "@/types"
 
 export function Navbar() {
-  const { data } = useQuery<{ userById: User }>(GET_USER, { variables: { userId: 653 } });
-  const user = data?.userById;
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <div className="border-b">
@@ -38,7 +39,7 @@ export function Navbar() {
         </Link>
         <div className="ml-auto flex items-center space-x-4">
           <ThemeToggle />
-          {user && (
+          {isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -80,16 +81,24 @@ export function Navbar() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link to="/login">Sign In</Link>
+              </Button>
+              <Button asChild>
+                <Link to="/signup">Sign Up</Link>
+              </Button>
+            </>
           )}
         </div>
       </div>
     </div>
   )
 }
-

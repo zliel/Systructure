@@ -8,6 +8,7 @@ import FlowEditor from './pages/FlowEditor';
 import NotFound from './pages/NotFound';
 import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
@@ -28,17 +29,29 @@ const router = createBrowserRouter([
     children: [
       {
         path: 'dashboard',
-        element: <Dashboard />,
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
       },
     ],
   },
   {
     path: '/editor',
-    element: <EditorLayout />,
+    element: (
+      <ProtectedRoute>
+        <EditorLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: ':projectId', // Dynamic route for project ID if we implement it, currently FlowEditor uses strict ID.
         element: <FlowEditor />,
+      },
+      {
+        path: '',
+        element: <Navigate to="/editor/552" replace />
       }
     ]
   },

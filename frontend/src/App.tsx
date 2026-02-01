@@ -46,12 +46,12 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        path: ':projectId', // Dynamic route for project ID if we implement it, currently FlowEditor uses strict ID.
-        element: <FlowEditor />,
+        path: ':projectId',
+        element: <FlowEditor />
       },
       {
         path: '',
-        element: <Navigate to="/editor/552" replace />
+        element: <Navigate to="/dashboard" replace />
       }
     ]
   },

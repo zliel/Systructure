@@ -23,7 +23,8 @@ type Mutation {
     updateEdge(id: ID!, updatedEdgeData: UpdateEdgeInput!): Edge
     deleteEdge(id: ID!): Edge
     deleteEdges(ids: [ID!]!): [Edge]
-    updateProject(id: ID!, updatedProjectData: ProjectInput): Project
+    createProject(newProjectData: CreateProjectInput!): Project
+    updateProject(id: ID!, updatedProjectData: UpdateProjectInput): Project
 }
 
 input NodeInput {
@@ -54,7 +55,13 @@ input UpdateEdgeInput {
     projectId: ID
 }
 
-input ProjectInput {
+input CreateProjectInput {
+    name: String!
+    description: String
+    isPublic: Boolean
+}
+
+input UpdateProjectInput {
     name: String
     description: String
     createdById: ID

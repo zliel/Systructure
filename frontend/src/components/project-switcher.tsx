@@ -23,10 +23,11 @@ export function ProjectSwitcher({
 }: {
   projects: ProjectMember[]
 }) {
-  console.log("projects", projects)
   const { isMobile } = useSidebar()
-  const [activeProject, setActiveProject] = React.useState<Project>(projects[0].project)
-  console.log("activeProject", activeProject)
+  const [activeProject, setActiveProject] = React.useState<Project | null>(
+    projects.length > 0 ? projects[0].project : null
+  )
+
   if (!activeProject) {
     return null
   }
@@ -60,12 +61,11 @@ export function ProjectSwitcher({
             </DropdownMenuLabel>
             {projects.map((project, index) => (
               <DropdownMenuItem
-                key={project.project.name}
+                key={project.project.id}
                 onClick={() => setActiveProject(project.project)}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-md border">
-                  {/* <project.logo className="size-3.5 shrink-0" /> */}
                   <Languages className="size-4" />
                 </div>
                 {project.project.name}
@@ -85,4 +85,3 @@ export function ProjectSwitcher({
     </SidebarMenu>
   )
 }
-

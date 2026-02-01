@@ -6,8 +6,18 @@ import EditorLayout from './layouts/EditorLayout';
 import Dashboard from './pages/Dashboard';
 import FlowEditor from './pages/FlowEditor';
 import NotFound from './pages/NotFound';
+import LoginPage from './pages/Login';
+import SignupPage from './pages/Signup';
 
 const router = createBrowserRouter([
+  {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
+    path: '/signup',
+    element: <SignupPage />,
+  },
   {
     path: '/',
     element: <Navigate to="/dashboard" replace />,

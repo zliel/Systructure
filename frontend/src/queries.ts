@@ -138,6 +138,17 @@ export const DELETE_EDGES = gql`
   }
 `
 
+export const CREATE_PROJECT = gql`
+  mutation CreateProject($input: CreateProjectInput!) {
+    createProject(newProjectData: $input) {
+      id
+      name
+      description
+      isPublic
+    }
+  }
+`
+
 export const GET_PROJECT_COMPONENTS = gql`
   query GetProjectComponents($projectId: ID!) {
     projectById(id: $projectId) {

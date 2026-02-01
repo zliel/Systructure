@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useParams, Navigate } from 'react-router-dom';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -24,8 +25,6 @@ import { useTheme } from '@/components/theme-provider';
 import { NodeDetailsPanel } from '@/components/NodeDetailsPanel';
 import { SidebarInset } from '@/components/ui/sidebar';
 
-const PROJECT_ID = 552;
-
 interface ProjectComponents {
   id: number;
   name: string;
@@ -33,16 +32,21 @@ interface ProjectComponents {
   edges: ProjectEdge[];
 }
 
-function FlowContent() {
+interface FlowContentProps {
+  projectId: number;
+}
+
+function FlowContent({ projectId }: FlowContentProps) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
   const { screenToFlowPosition, updateNodeData } = useReactFlow();
 
   // Queries & Mutations
-  const { loading, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId: PROJECT_ID } });
+  const { loading, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId } });
 
   const [createNode] = useMutation<{ createNode: ProjectNode }>(CREATE_NODE, {
+    refetchQueries: [{ query: GET_PROJECT_COMPONENTS, variables: { projectId } }],
     onCompleted: (data) => {
       const newNode: Node = {
         id: `${data.createNode.id}`,
@@ -57,6 +61,7 @@ function FlowContent() {
   });
 
   const [createEdge] = useMutation<{ createEdge: ProjectEdge }>(CREATE_EDGE, {
+    refetchQueries: [{ query: GET_PROJECT_COMPONENTS, variables: { projectId } }],
     onCompleted: (data) => {
       const newEdge: Edge = {
         id: `${data.createEdge.id}`,
@@ -69,10 +74,12 @@ function FlowContent() {
   });
 
   const [deleteNodes] = useMutation(DELETE_NODES, {
+    refetchQueries: [{ query: GET_PROJECT_COMPONENTS, variables: { projectId } }],
     onError: (error) => console.error("Error deleting nodes:", error)
   });
 
   const [deleteEdges] = useMutation(DELETE_EDGES, {
+    refetchQueries: [{ query: GET_PROJECT_COMPONENTS, variables: { projectId } }],
     onError: (error) => console.error("Error deleting edges:", error)
   });
 
@@ -118,21 +125,21 @@ function FlowContent() {
         name: `${type} node(created)`,
         xPos: position.x,
         yPos: position.y,
-        projectId: PROJECT_ID,
+        projectId,
       };
       createNode({ variables: { input: nodeInput } });
     },
-    [screenToFlowPosition, createNode]
+    [screenToFlowPosition, createNode, projectId]
   );
 
   const onConnect = useCallback((params: any) => {
     const edgeInput: EdgeInput = {
       sourceNodeId: parseInt(params.source),
       targetNodeId: parseInt(params.target),
-      projectId: PROJECT_ID,
+      projectId,
     }
     createEdge({ variables: { input: edgeInput } });
-  }, [createEdge]);
+  }, [createEdge, projectId]);
 
   const onNodesDelete = useCallback((deletedNodes: Node[]) => {
     const nodeIds = deletedNodes.map((node) => parseInt(node.id));
@@ -145,8 +152,10 @@ function FlowContent() {
   }, [deleteEdges]);
 
   const onClickComponent = useCallback((type: string) => {
+    // Logic to add node at center
     const flowBounds = reactFlowWrapper.current?.getBoundingClientRect();
     if (!flowBounds) return;
+    // Center ??
     const position = screenToFlowPosition({
       x: flowBounds.left + flowBounds.width / 2,
       y: flowBounds.top + flowBounds.height / 2,
@@ -157,10 +166,10 @@ function FlowContent() {
       name: `${type} node`,
       xPos: position.x,
       yPos: position.y,
-      projectId: PROJECT_ID,
+      projectId,
     };
     createNode({ variables: { input: nodeInput } });
-  }, [screenToFlowPosition, createNode]);
+  }, [screenToFlowPosition, createNode, projectId]);
 
   const onNodeDoubleClick = useCallback((_: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
@@ -203,7 +212,7 @@ function FlowContent() {
 
         <NodeDetailsPanel
           node={selectedNode}
-          projectId={PROJECT_ID}
+          projectId={projectId}
           open={isPanelOpen}
           onOpenChange={setIsPanelOpen}
           onSave={handleNodeSave}
@@ -214,9 +223,17 @@ function FlowContent() {
 }
 
 export default function FlowEditor() {
+  const { projectId: projectIdParam } = useParams<{ projectId: string }>();
+  const projectId = projectIdParam ? parseInt(projectIdParam, 10) : NaN;
+
+  // Redirect to dashboard if projectId is invalid
+  if (isNaN(projectId)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <ReactFlowProvider>
-      <FlowContent />
+      <FlowContent projectId={projectId} />
     </ReactFlowProvider>
-  )
+  );
 }

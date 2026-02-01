@@ -4,9 +4,13 @@ import {
   MessageSquare,
   Network,
   Database,
-  Container
+  Container,
+  Loader2
 } from "lucide-react"
+
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useAuth } from "@/contexts/AuthContext"
+
 import { NavUser } from "@/components/nav-user"
 import { ProjectSwitcher } from "@/components/project-switcher"
 import {
@@ -26,8 +30,8 @@ import {
 import { memo } from "react"
 import { Button } from "./ui/button"
 import { useQuery } from "@apollo/client/react"
-import { GET_USER } from "@/queries"
-import type { User } from "@/types"
+import { GET_USER_PROJECTS } from "@/queries"
+import type { ProjectMember } from "@/types"
 
 // Toolbox items for dragging
 const toolboxItems = [
@@ -43,16 +47,43 @@ interface SidebarProps {
 }
 
 export const AppSidebar = memo(function AppSidebar({ onDragStart, onDoubleClick }: SidebarProps) {
-  const { loading, error, data } = useQuery<{ userById: User }>(GET_USER, { variables: { userId: 653 } });
-  console.log("User data:", data);
+  const { user } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  const { loading, data } = useQuery<{ userById: { projectMemberships: ProjectMember[] } }>(
+    GET_USER_PROJECTS,
+    {
+      variables: { userId: user?.id },
+      skip: !user?.id,
+    }
+  );
+
+  if (!user) {
+    return (
+      <Sidebar collapsible="icon">
+        <SidebarContent className="flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </SidebarContent>
+      </Sidebar>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Sidebar collapsible="icon">
+        <SidebarContent className="flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </SidebarContent>
+      </Sidebar>
+    );
+  }
+
+  const projects = data?.userById?.projectMemberships ?? [];
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="group-data-[collapsible=icon]:items-center">
         <div className="flex w-full items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2">
-          <ProjectSwitcher projects={data!.userById.projectMemberships} />
+          <ProjectSwitcher projects={projects} />
           <SidebarTrigger />
         </div>
       </SidebarHeader>
@@ -87,7 +118,7 @@ export const AppSidebar = memo(function AppSidebar({ onDragStart, onDoubleClick 
           </Button>
           <ThemeToggle />
         </div>
-        <NavUser user={data!.userById} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar >

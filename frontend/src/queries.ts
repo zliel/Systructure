@@ -182,3 +182,18 @@ export const GET_USER = gql`
     }
   }
 `
+
+export const GET_USER_PROJECTS = gql`
+  query GetUserProjects($userId: ID!) {
+    userById(id: $userId) {
+      projectMemberships {
+        id
+        projectRole
+        project {
+          id
+          name
+        }
+      }
+    }
+  }
+`

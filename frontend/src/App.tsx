@@ -9,6 +9,7 @@ import NotFound from './pages/NotFound';
 import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import LandingPage from './pages/LandingPage';
 
 const router = createBrowserRouter([
   {
@@ -21,7 +22,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <Navigate to="/dashboard" replace />,
+    element: <LandingPage />,
   },
   {
     path: '/',

@@ -10,6 +10,7 @@ import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
+import AboutPage from './pages/AboutPage';
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <LandingPage />,
+  },
+  {
+    path: '/about',
+    element: <AboutPage />,
   },
   {
     path: '/',

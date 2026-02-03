@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { LayoutGrid } from "lucide-react"
+import { LayoutGrid, Workflow } from "lucide-react"
 
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useAuth } from "@/contexts/AuthContext"
@@ -33,10 +33,17 @@ export function Navbar() {
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4">
-        <Link to="/dashboard" className="flex items-center gap-2 font-semibold">
-          <LayoutGrid className="h-6 w-6" />
-          <span>Systructure</span>
+        {/* Logo */}
+        <Link to="/dashboard" className="flex items-center gap-2 group">
+          <div className="relative">
+            <Workflow className="h-8 w-8 text-primary transition-transform group-hover:scale-110" />
+            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+          <span className="text-xl font-bold tracking-tight">
+            Systructure
+          </span>
         </Link>
+
         <div className="ml-auto flex items-center space-x-4">
           <ThemeToggle />
           {isAuthenticated && user ? (

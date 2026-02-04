@@ -10,37 +10,39 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useTheme } from '../theme-provider';
+import { nodeTypes } from '@/components/flow';
+import { NodeType } from '@/types';
 
 const demoNodes: Node[] = [
   {
     id: '1',
-    type: 'default',
+    type: 'system',
     position: { x: 50, y: 150 },
-    data: { label: 'Frontend' },
+    data: { label: 'Frontend', type: NodeType.SERVICE },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
   },
   {
     id: '2',
-    type: 'default',
+    type: 'system',
     position: { x: 250, y: 150 },
-    data: { label: 'API Gateway' },
+    data: { label: 'API Gateway', type: NodeType.GATEWAY },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
   },
   {
     id: '3',
-    type: 'default',
+    type: 'system',
     position: { x: 450, y: 100 },
-    data: { label: 'Backend' },
+    data: { label: 'Backend', type: NodeType.SERVICE },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
   },
   {
     id: '4',
-    type: 'default',
+    type: 'system',
     position: { x: 450, y: 200 },
-    data: { label: 'Database' },
+    data: { label: 'Database', type: NodeType.DATABASE },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
   },
@@ -111,6 +113,7 @@ export function ProductDemo() {
               <ReactFlow
                 nodes={demoNodes}
                 edges={demoEdges}
+                nodeTypes={nodeTypes}
                 colorMode={theme === 'dark' ? 'dark' : 'light'}
                 // nodesDraggable={false}
                 // nodesConnectable={false}

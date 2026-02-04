@@ -1,0 +1,89 @@
+.system-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--card-foreground);
+  min-width: 100px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.system-node-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.system-node-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-service {
+  border-left: 3px solid oklch(0.65 0.19 250);
+}
+
+.node-service .system-node-icon {
+  color: oklch(0.65 0.19 250);
+}
+
+.node-service.selected {
+  border-color: oklch(0.65 0.19 250);
+  box-shadow: 0 0 0 2px oklch(0.65 0.19 250 / 25%);
+}
+
+.node-database {
+  border-left: 3px solid oklch(0.65 0.19 145);
+}
+
+.node-database .system-node-icon {
+  color: oklch(0.65 0.19 145);
+}
+
+.node-database.selected {
+  border-color: oklch(0.65 0.19 145);
+  box-shadow: 0 0 0 2px oklch(0.65 0.19 145 / 25%);
+}
+
+.node-queue {
+  border-left: 3px solid oklch(0.70 0.18 55);
+}
+
+.node-queue .system-node-icon {
+  color: oklch(0.70 0.18 55);
+}
+
+.node-queue.selected {
+  border-color: oklch(0.70 0.18 55);
+  box-shadow: 0 0 0 2px oklch(0.70 0.18 55 / 25%);
+}
+
+.node-gateway {
+  border-left: 3px solid oklch(0.65 0.22 310);
+}
+
+.node-gateway .system-node-icon {
+  color: oklch(0.65 0.22 310);
+}
+
+.node-gateway.selected {
+  border-color: oklch(0.65 0.22 310);
+  box-shadow: 0 0 0 2px oklch(0.65 0.22 310 / 25%);
+}
+
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  background: var(--muted-foreground);
+  border: 2px solid var(--card);
+}
+
+.react-flow__handle:hover {
+  background: var(--primary);
+}

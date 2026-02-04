@@ -6,7 +6,7 @@ export function mapProjectNodesToFlowNodes(projectNodes: ProjectNode[]): FlowNod
     id: node.id.toString(),
     data: { label: node.name, type: node.type },
     position: { x: node.xPos, y: node.yPos } as XYPosition,
-    type: 'default',
+    type: 'system',
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
   }));

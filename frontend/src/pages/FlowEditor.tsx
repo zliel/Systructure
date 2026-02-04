@@ -16,6 +16,7 @@ import {
 
 import '@xyflow/react/dist/style.css';
 import { AppSidebar } from '@/components/AppSidebar';
+import { nodeTypes } from '@/components/flow';
 import { mapProjectEdgesToFlowEdges, mapProjectNodesToFlowNodes } from '@/utils/transformers';
 import { type Node as ProjectNode, type Edge as ProjectEdge, NodeType, type EdgeInput, type NodeInput } from '@/types';
 import { useMutation, useQuery } from '@apollo/client/react';
@@ -50,7 +51,7 @@ function FlowContent({ projectId }: FlowContentProps) {
     onCompleted: (data) => {
       const newNode: Node = {
         id: `${data.createNode.id}`,
-        type: 'default',
+        type: 'system',
         position: { x: data.createNode.xPos, y: data.createNode.yPos },
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
@@ -187,6 +188,7 @@ function FlowContent({ projectId }: FlowContentProps) {
         <ReactFlow
           nodes={nodes}
           edges={edges}
+          nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}

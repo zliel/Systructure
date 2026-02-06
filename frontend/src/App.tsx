@@ -8,26 +8,43 @@ import FlowEditor from './pages/FlowEditor';
 import NotFound from './pages/NotFound';
 import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
-import { ProtectedRoute } from './components/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import AboutPage from './pages/AboutPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const router = createBrowserRouter([
   {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/signup',
-    element: <SignupPage />,
-  },
-  {
     path: '/',
-    element: <LandingPage />,
+    element: (
+      <ErrorBoundary>
+        <LandingPage />
+      </ErrorBoundary>
+    ),
   },
   {
     path: '/about',
-    element: <AboutPage />,
+    element: (
+      <ErrorBoundary>
+        <AboutPage />
+      </ErrorBoundary>
+    ),
+  },
+  {
+    path: '/login',
+    element: (
+      <ErrorBoundary>
+        <LoginPage />
+      </ErrorBoundary>
+    ),
+  },
+  {
+    path: '/signup',
+    element: (
+      <ErrorBoundary>
+        <SignupPage />
+      </ErrorBoundary>
+    ),
   },
   {
     path: '/',
@@ -37,7 +54,9 @@ const router = createBrowserRouter([
         path: 'dashboard',
         element: (
           <ProtectedRoute>
-            <Dashboard />
+            <ErrorBoundary>
+              <Dashboard />
+            </ErrorBoundary>
           </ProtectedRoute>
         ),
       },
@@ -53,7 +72,11 @@ const router = createBrowserRouter([
     children: [
       {
         path: ':projectId',
-        element: <FlowEditor />
+        element: (
+          <ErrorBoundary>
+            <FlowEditor />
+          </ErrorBoundary>
+        ),
       },
       {
         path: '',

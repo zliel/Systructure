@@ -18,6 +18,8 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Lo
 
     List<ProjectMember> findByUser(User user);
 
+    List<ProjectMember> findByUserAndProjectRole(User user, ProjectRole projectRole);
+
     // Check if a user is a member of a specific project
     Optional<ProjectMember> findByUserAndProject(User user, Project project);
 

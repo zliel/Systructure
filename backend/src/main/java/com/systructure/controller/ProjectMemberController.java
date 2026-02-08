@@ -4,9 +4,7 @@ import com.systructure.model.Project;
 import com.systructure.model.ProjectMember;
 import com.systructure.model.ProjectRole;
 import com.systructure.model.User;
-import com.systructure.repository.ProjectMemberRepository;
-import com.systructure.repository.ProjectRepository;
-import com.systructure.repository.UserRepository;
+import com.systructure.service.ProjectMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -18,27 +16,22 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class ProjectMemberController {
-    private final ProjectMemberRepository projectMemberRepository;
-    private final UserRepository userRepository;
-    private final ProjectRepository projectRepository;
+
+    private final ProjectMemberService projectMemberService;
 
     @QueryMapping
     public ProjectMember projectMemberById(@Argument Long id) {
-        return projectMemberRepository.findById(id).orElse(null);
+        return projectMemberService.findById(id).orElse(null);
     }
 
     @QueryMapping
     public ProjectRole userRoleInProject(@Argument Long userId, @Argument Long projectId) {
-        return projectMemberRepository.findRoleByProjectIdAndUserId(projectId, userId).orElse(null);
+        return projectMemberService.findUserRoleInProject(userId, projectId).orElse(null);
     }
 
     @QueryMapping
     public List<ProjectMember> projectMembershipsByUserId(@Argument Long userId) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            return List.of();
-        }
-        return projectMemberRepository.findByUser(user);
+        return projectMemberService.findByUserId(userId);
     }
 
     @SchemaMapping
@@ -56,3 +49,4 @@ public class ProjectMemberController {
         return projectMember.getProjectRole();
     }
 }
+

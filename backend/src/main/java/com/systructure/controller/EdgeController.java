@@ -2,9 +2,7 @@ package com.systructure.controller;
 
 import com.systructure.model.Edge;
 import com.systructure.model.Node;
-import com.systructure.repository.EdgeRepository;
-import com.systructure.repository.NodeRepository;
-import com.systructure.repository.ProjectRepository;
+import com.systructure.service.EdgeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -17,75 +15,56 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class EdgeController {
-    private final NodeRepository nodeRepository;
-    private final EdgeRepository edgeRepository;
-    private final ProjectRepository projectRepository;
+
+    private final EdgeService edgeService;
 
     @QueryMapping
     public Edge edgeById(@Argument Long id) {
-        return edgeRepository.findById(id).orElse(null);
+        return edgeService.findById(id).orElse(null);
     }
 
     @QueryMapping
     public List<Edge> allEdges() {
-        return edgeRepository.findAll();
+        return edgeService.findAll();
     }
 
     @SchemaMapping
     public Node sourceNode(Edge edge) {
-        return nodeRepository.findById(edge.getSourceNode().getId()).orElse(null);
+        return edge.getSourceNode();
     }
 
     @SchemaMapping
     public Node targetNode(Edge edge) {
-        return nodeRepository.findById(edge.getTargetNode().getId()).orElse(null);
+        return edge.getTargetNode();
     }
 
     @MutationMapping
     public Edge createEdge(@Argument EdgeInput newEdgeData) {
-        Edge edge = new Edge();
-        Node sourceNode = nodeRepository.findById(newEdgeData.sourceNodeId()).orElse(null);
-        Node targetNode = nodeRepository.findById(newEdgeData.targetNodeId()).orElse(null);
-        edge.setSourceNode(sourceNode);
-        edge.setTargetNode(targetNode);
-        edge.setProject(projectRepository.findById(newEdgeData.projectId()).orElse(null));
-        return edgeRepository.save(edge);
+        return edgeService.create(
+                newEdgeData.sourceNodeId(),
+                newEdgeData.targetNodeId(),
+                newEdgeData.projectId()
+        );
     }
 
     @MutationMapping
     public Edge updateEdge(@Argument Long id, @Argument UpdateEdgeInput updatedEdgeData) {
-        Edge edge = edgeRepository.findById(id).orElse(null);
-        if (edge == null) {
-            return null;
-        }
-        if (updatedEdgeData.sourceNodeId() != null) {
-            Node sourceNode = nodeRepository.findById(updatedEdgeData.sourceNodeId()).orElse(null);
-            edge.setSourceNode(sourceNode);
-        }
-        if (updatedEdgeData.targetNodeId() != null) {
-            Node targetNode = nodeRepository.findById(updatedEdgeData.targetNodeId()).orElse(null);
-            edge.setTargetNode(targetNode);
-        }
-        if (updatedEdgeData.projectId() != null) {
-            edge.setProject(projectRepository.findById(updatedEdgeData.projectId()).orElse(null));
-        }
-        return edgeRepository.save(edge);
+        return edgeService.update(
+                id,
+                updatedEdgeData.sourceNodeId(),
+                updatedEdgeData.targetNodeId(),
+                updatedEdgeData.projectId()
+        ).orElse(null);
     }
 
     @MutationMapping
     public Edge deleteEdge(@Argument Long id) {
-        Edge edge = edgeRepository.findById(id).orElse(null);
-        if (edge != null) {
-            edgeRepository.delete(edge);
-        }
-        return edge;
+        return edgeService.delete(id).orElse(null);
     }
 
     @MutationMapping
     public List<Edge> deleteEdges(@Argument List<Long> ids) {
-        List<Edge> edges = edgeRepository.findAllById(ids);
-        edgeRepository.deleteAll(edges);
-        return edges;
+        return edgeService.deleteAll(ids);
     }
 
     public record EdgeInput(Long sourceNodeId, Long targetNodeId, Long projectId) {
@@ -94,3 +73,4 @@ public class EdgeController {
     public record UpdateEdgeInput(Long sourceNodeId, Long targetNodeId, Long projectId) {
     }
 }
+

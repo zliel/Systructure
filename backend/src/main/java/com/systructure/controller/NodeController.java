@@ -2,9 +2,7 @@ package com.systructure.controller;
 
 import com.systructure.model.Node;
 import com.systructure.model.NodeType;
-import com.systructure.repository.EdgeRepository;
-import com.systructure.repository.NodeRepository;
-import com.systructure.repository.ProjectRepository;
+import com.systructure.service.NodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -17,69 +15,49 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NodeController {
 
-    private final NodeRepository nodeRepository;
-    private final EdgeRepository edgeRepository;
-    private final ProjectRepository projectRepository;
+    private final NodeService nodeService;
 
     @QueryMapping
     public Node nodeById(@Argument Long id) {
-        return nodeRepository.findById(id).orElse(null);
+        return nodeService.findById(id).orElse(null);
     }
 
     @QueryMapping
     public List<Node> allNodes() {
-        return nodeRepository.findAll();
+        return nodeService.findAll();
     }
 
     @MutationMapping
     public Node createNode(@Argument NodeInput newNodeData) {
-        Node node = new Node();
-        node.setName(newNodeData.name());
-        node.setType(newNodeData.type());
-        node.setXPos(newNodeData.xPos());
-        node.setYPos(newNodeData.yPos());
-        node.setProject(projectRepository.findById(newNodeData.projectId()).orElse(null));
-        return nodeRepository.save(node);
+        return nodeService.create(
+                newNodeData.name(),
+                newNodeData.type(),
+                newNodeData.xPos(),
+                newNodeData.yPos(),
+                newNodeData.projectId()
+        );
     }
 
     @MutationMapping
     public Node updateNode(@Argument Long id, @Argument UpdateNodeInput updatedNodeData) {
-        Node node = nodeRepository.findById(id).orElse(null);
-        if (node == null) {
-            return null;
-        }
-        if (updatedNodeData.name() != null) {
-            node.setName(updatedNodeData.name());
-        }
-        if (updatedNodeData.type() != null) {
-            node.setType(updatedNodeData.type());
-        }
-        if (updatedNodeData.xPos() != null) {
-            node.setXPos(updatedNodeData.xPos());
-        }
-        if (updatedNodeData.yPos() != null) {
-            node.setYPos(updatedNodeData.yPos());
-        }
-        if (updatedNodeData.projectId() != null) {
-            node.setProject(projectRepository.findById(updatedNodeData.projectId()).orElse(null));
-        }
-        return nodeRepository.save(node);
+        return nodeService.update(
+                id,
+                updatedNodeData.name(),
+                updatedNodeData.type(),
+                updatedNodeData.xPos(),
+                updatedNodeData.yPos(),
+                updatedNodeData.projectId()
+        ).orElse(null);
     }
 
     @MutationMapping
     public Node deleteNode(@Argument Long id) {
-        Node node = nodeRepository.findById(id).orElse(null);
-        if (node != null) {
-            nodeRepository.delete(node);
-        }
-        return node;
+        return nodeService.delete(id).orElse(null);
     }
 
     @MutationMapping
     public List<Node> deleteNodes(@Argument List<Long> ids) {
-        List<Node> nodes = nodeRepository.findAllById(ids);
-        nodeRepository.deleteAll(nodes);
-        return nodes;
+        return nodeService.deleteAll(ids);
     }
 
     public record NodeInput(String name, NodeType type, Float xPos, Float yPos, Long projectId) {

@@ -2,7 +2,7 @@ package com.systructure.controller;
 
 import com.systructure.model.ProjectMember;
 import com.systructure.model.User;
-import com.systructure.repository.UserRepository;
+import com.systructure.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -14,16 +14,17 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class UserController {
-    private final UserRepository userRepository;
+
+    private final UserService userService;
 
     @QueryMapping
     public User userById(@Argument Long id) {
-        return userRepository.findById(id).orElse(null);
+        return userService.findById(id).orElse(null);
     }
 
     @QueryMapping
     public List<User> allUsers() {
-        return userRepository.findAll();
+        return userService.findAll();
     }
 
     @SchemaMapping
@@ -31,3 +32,4 @@ public class UserController {
         return user.getProjectMemberships();
     }
 }
+

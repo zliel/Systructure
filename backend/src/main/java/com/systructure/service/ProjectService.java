@@ -25,6 +25,7 @@ public class ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
     private final NodeRepository nodeRepository;
     private final EdgeRepository edgeRepository;
+    private final AuthorizationService authorizationService;
 
     public Optional<Project> findById(Long id) {
         return projectRepository.findById(id);
@@ -50,7 +51,6 @@ public class ProjectService {
 
         Project savedProject = projectRepository.save(project);
 
-        // Add the creator as an OWNER member
         ProjectMember membership = new ProjectMember();
         membership.setUser(currentUser);
         membership.setProject(savedProject);
@@ -66,6 +66,8 @@ public class ProjectService {
     @Transactional
     public Optional<Project> update(Long id, String name, String description, Boolean isPublic,
                                     List<Long> nodeIds, List<Long> edgeIds) {
+        authorizationService.requireManagePermission(id);
+
         return projectRepository.findById(id).map(project -> {
             if (name != null) {
                 project.setName(name);
@@ -89,6 +91,8 @@ public class ProjectService {
 
     @Transactional
     public Optional<Project> delete(Long id) {
+        authorizationService.requireManagePermission(id);
+
         return projectRepository.findById(id).map(project -> {
             projectRepository.delete(project);
             return project;

@@ -35,6 +35,9 @@ class EdgeServiceTest {
     @Mock
     private ProjectRepository projectRepository;
 
+    @Mock
+    private AuthorizationService authorizationService;
+
     @InjectMocks
     private EdgeService edgeService;
 

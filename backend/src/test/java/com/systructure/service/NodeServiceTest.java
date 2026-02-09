@@ -30,6 +30,9 @@ class NodeServiceTest {
     @Mock
     private ProjectRepository projectRepository;
 
+    @Mock
+    private AuthorizationService authorizationService;
+
     @InjectMocks
     private NodeService nodeService;
 

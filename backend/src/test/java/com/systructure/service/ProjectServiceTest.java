@@ -47,6 +47,9 @@ class ProjectServiceTest {
     @Mock
     private Authentication authentication;
 
+    @Mock
+    private AuthorizationService authorizationService;
+
     @InjectMocks
     private ProjectService projectService;
 

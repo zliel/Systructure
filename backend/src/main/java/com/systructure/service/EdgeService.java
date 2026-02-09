@@ -20,6 +20,7 @@ public class EdgeService {
     private final EdgeRepository edgeRepository;
     private final NodeRepository nodeRepository;
     private final ProjectRepository projectRepository;
+    private final AuthorizationService authorizationService;
 
     public Optional<Edge> findById(Long id) {
         return edgeRepository.findById(id);
@@ -31,20 +32,19 @@ public class EdgeService {
 
     @Transactional
     public Edge create(Long sourceNodeId, Long targetNodeId, Long projectId) {
+        authorizationService.requireEditPermission(projectId);
+
         Node sourceNode = nodeRepository.findById(sourceNodeId)
                 .orElseThrow(() -> new IllegalArgumentException("Source node not found: " + sourceNodeId));
         Node targetNode = nodeRepository.findById(targetNodeId)
                 .orElseThrow(() -> new IllegalArgumentException("Target node not found: " + targetNodeId));
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectId));
 
         Edge edge = new Edge();
         edge.setSourceNode(sourceNode);
         edge.setTargetNode(targetNode);
-
-        if (projectId != null) {
-            Project project = projectRepository.findById(projectId)
-                    .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectId));
-            edge.setProject(project);
-        }
+        edge.setProject(project);
 
         return edgeRepository.save(edge);
     }
@@ -52,6 +52,10 @@ public class EdgeService {
     @Transactional
     public Optional<Edge> update(Long id, Long sourceNodeId, Long targetNodeId, Long projectId) {
         return edgeRepository.findById(id).map(edge -> {
+            if (edge.getProject() != null) {
+                authorizationService.requireEditPermission(edge.getProject().getId());
+            }
+
             if (sourceNodeId != null) {
                 Node sourceNode = nodeRepository.findById(sourceNodeId)
                         .orElseThrow(() -> new IllegalArgumentException("Source node not found: " + sourceNodeId));
@@ -63,6 +67,7 @@ public class EdgeService {
                 edge.setTargetNode(targetNode);
             }
             if (projectId != null) {
+                authorizationService.requireEditPermission(projectId);
                 Project project = projectRepository.findById(projectId)
                         .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectId));
                 edge.setProject(project);
@@ -74,6 +79,9 @@ public class EdgeService {
     @Transactional
     public Optional<Edge> delete(Long id) {
         return edgeRepository.findById(id).map(edge -> {
+            if (edge.getProject() != null) {
+                authorizationService.requireEditPermission(edge.getProject().getId());
+            }
             edgeRepository.delete(edge);
             return edge;
         });
@@ -82,6 +90,12 @@ public class EdgeService {
     @Transactional
     public List<Edge> deleteAll(List<Long> ids) {
         List<Edge> edges = edgeRepository.findAllById(ids);
+        edges.stream()
+                .filter(edge -> edge.getProject() != null)
+                .map(edge -> edge.getProject().getId())
+                .distinct()
+                .forEach(authorizationService::requireEditPermission);
+
         edgeRepository.deleteAll(edges);
         return edges;
     }

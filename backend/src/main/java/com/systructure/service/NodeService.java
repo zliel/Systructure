@@ -18,6 +18,7 @@ public class NodeService {
 
     private final NodeRepository nodeRepository;
     private final ProjectRepository projectRepository;
+    private final AuthorizationService authorizationService;
 
     public Optional<Node> findById(Long id) {
         return nodeRepository.findById(id);
@@ -29,17 +30,17 @@ public class NodeService {
 
     @Transactional
     public Node create(String name, NodeType type, Float xPos, Float yPos, Long projectId) {
+        authorizationService.requireEditPermission(projectId);
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectId));
+
         Node node = new Node();
         node.setName(name);
         node.setType(type);
         node.setXPos(xPos);
         node.setYPos(yPos);
-
-        if (projectId != null) {
-            Project project = projectRepository.findById(projectId)
-                    .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectId));
-            node.setProject(project);
-        }
+        node.setProject(project);
 
         return nodeRepository.save(node);
     }
@@ -47,6 +48,10 @@ public class NodeService {
     @Transactional
     public Optional<Node> update(Long id, String name, NodeType type, Float xPos, Float yPos, Long projectId) {
         return nodeRepository.findById(id).map(node -> {
+            if (node.getProject() != null) {
+                authorizationService.requireEditPermission(node.getProject().getId());
+            }
+
             if (name != null) {
                 node.setName(name);
             }
@@ -60,6 +65,7 @@ public class NodeService {
                 node.setYPos(yPos);
             }
             if (projectId != null) {
+                authorizationService.requireEditPermission(projectId);
                 Project project = projectRepository.findById(projectId)
                         .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectId));
                 node.setProject(project);
@@ -71,6 +77,9 @@ public class NodeService {
     @Transactional
     public Optional<Node> delete(Long id) {
         return nodeRepository.findById(id).map(node -> {
+            if (node.getProject() != null) {
+                authorizationService.requireEditPermission(node.getProject().getId());
+            }
             nodeRepository.delete(node);
             return node;
         });
@@ -79,6 +88,12 @@ public class NodeService {
     @Transactional
     public List<Node> deleteAll(List<Long> ids) {
         List<Node> nodes = nodeRepository.findAllById(ids);
+        nodes.stream()
+                .filter(node -> node.getProject() != null)
+                .map(node -> node.getProject().getId())
+                .distinct()
+                .forEach(authorizationService::requireEditPermission);
+
         nodeRepository.deleteAll(nodes);
         return nodes;
     }

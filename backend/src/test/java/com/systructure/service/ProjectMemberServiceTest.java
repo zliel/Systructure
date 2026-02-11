@@ -12,7 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,7 +58,7 @@ class ProjectMemberServiceTest {
         testMember.setUser(testUser);
         testMember.setProject(testProject);
         testMember.setProjectRole(ProjectRole.EDITOR);
-        testMember.setJoinedAt(LocalDateTime.now());
+        testMember.setJoinedAt(Instant.now());
     }
 
     @Test

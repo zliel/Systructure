@@ -13,7 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,8 +71,8 @@ class ProjectServiceTest {
         testProject.setDescription("A test project");
         testProject.setIsPublic(false);
         testProject.setCreatedBy(testUser);
-        testProject.setCreatedAt(LocalDateTime.now());
-        testProject.setUpdatedAt(LocalDateTime.now());
+        testProject.setCreatedAt(Instant.now());
+        testProject.setUpdatedAt(Instant.now());
         testProject.setNodes(new ArrayList<>());
         testProject.setEdges(new ArrayList<>());
         testProject.setProjectMembers(new ArrayList<>());

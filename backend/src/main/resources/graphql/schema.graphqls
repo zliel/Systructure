@@ -1,3 +1,5 @@
+scalar DateTime
+
 type Query {
     nodeById(id: ID): Node
     edgeById(id: ID): Edge
@@ -102,8 +104,8 @@ type Project {
     edges: [Edge]
     members: [ProjectMember]
     createdBy: User
-    createdAt: String
-    updatedAt: String
+    createdAt: DateTime
+    updatedAt: DateTime
     isPublic: Boolean
 
 }
@@ -126,7 +128,7 @@ type ProjectMember {
     user: User
     project: Project
     projectRole: ProjectRole
-    joinedAt: String
+    joinedAt: DateTime
 }
 
 enum ProjectRole {

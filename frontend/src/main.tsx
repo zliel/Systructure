@@ -18,6 +18,7 @@ import { ThemeProvider } from "./components/theme-provider.tsx"
 import { AuthProvider } from "./contexts/AuthContext.tsx"
 import { getAccessToken, getRefreshToken, setTokens, clearTokens, isTokenExpired } from "./lib/auth.ts"
 import { refreshTokenApi } from "./lib/authApi.ts"
+import { Toaster } from "@/components/ui/sonner"
 
 // Auth link - adds Authorization header to every request
 const authLink = setContext((_, { headers }) => {
@@ -97,6 +98,7 @@ createRoot(document.getElementById("root")!).render(
       <AuthProvider>
         <ApolloProvider client={apolloClient}>
           <App />
+          <Toaster richColors position="bottom-center" />
         </ApolloProvider>
       </AuthProvider>
     </ThemeProvider>

@@ -25,12 +25,26 @@ import { SpinnerBadge } from '@/components/SpinnerBadge';
 import { useTheme } from '@/components/theme-provider';
 import { NodeDetailsPanel } from '@/components/NodeDetailsPanel';
 import { SidebarInset } from '@/components/ui/sidebar';
+import { useProjectRole } from '@/hooks/use-project-role';
+import { toast } from 'sonner';
+import { Eye } from 'lucide-react';
 
 interface ProjectComponents {
   id: number;
   name: string;
   nodes: ProjectNode[];
   edges: ProjectEdge[];
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error && typeof error === 'object' && 'message' in error) {
+    const msg = (error as { message: string }).message;
+    if (msg.toLowerCase().includes('access denied') || msg.toLowerCase().includes('forbidden')) {
+      return "You don't have permission to perform this action";
+    }
+    return msg;
+  }
+  return 'An unexpected error occurred';
 }
 
 interface FlowContentProps {
@@ -44,6 +58,8 @@ function FlowContent({ projectId }: FlowContentProps) {
   const { screenToFlowPosition, updateNodeData } = useReactFlow();
 
   // Queries & Mutations
+  const { canEdit, role, isLoading: roleLoading } = useProjectRole(projectId);
+
   const { loading, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId } });
 
   const [createNode] = useMutation<{ createNode: ProjectNode }>(CREATE_NODE, {
@@ -58,7 +74,8 @@ function FlowContent({ projectId }: FlowContentProps) {
         data: { label: data.createNode.name, type: data.createNode.type },
       };
       setNodes((nds) => nds.concat(newNode));
-    }
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
   });
 
   const [createEdge] = useMutation<{ createEdge: ProjectEdge }>(CREATE_EDGE, {
@@ -71,17 +88,18 @@ function FlowContent({ projectId }: FlowContentProps) {
         animated: true,
       };
       setEdges((eds) => eds.concat(newEdge));
-    }
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
   });
 
   const [deleteNodes] = useMutation(DELETE_NODES, {
     refetchQueries: [{ query: GET_PROJECT_COMPONENTS, variables: { projectId } }],
-    onError: (error) => console.error("Error deleting nodes:", error)
+    onError: (error) => toast.error(getErrorMessage(error)),
   });
 
   const [deleteEdges] = useMutation(DELETE_EDGES, {
     refetchQueries: [{ query: GET_PROJECT_COMPONENTS, variables: { projectId } }],
-    onError: (error) => console.error("Error deleting edges:", error)
+    onError: (error) => toast.error(getErrorMessage(error)),
   });
 
   const { theme } = useTheme();
@@ -98,9 +116,10 @@ function FlowContent({ projectId }: FlowContentProps) {
   }, [data, setNodes, setEdges]);
 
   const onDragStart = useCallback((event: React.DragEvent, nodeType: string) => {
+    if (!canEdit) return;
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
-  }, []);
+  }, [canEdit]);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -110,6 +129,11 @@ function FlowContent({ projectId }: FlowContentProps) {
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
+      if (!canEdit) {
+        toast.error("You don't have permission to edit this project");
+        return;
+      }
+
       const type = event.dataTransfer.getData('application/reactflow');
       if (!type) return;
 
@@ -130,33 +154,47 @@ function FlowContent({ projectId }: FlowContentProps) {
       };
       createNode({ variables: { input: nodeInput } });
     },
-    [screenToFlowPosition, createNode, projectId]
+    [screenToFlowPosition, createNode, projectId, canEdit]
   );
 
   const onConnect = useCallback((params: any) => {
+    if (!canEdit) {
+      toast.error("You don't have permission to edit this project");
+      return;
+    }
     const edgeInput: EdgeInput = {
       sourceNodeId: parseInt(params.source),
       targetNodeId: parseInt(params.target),
       projectId,
     }
     createEdge({ variables: { input: edgeInput } });
-  }, [createEdge, projectId]);
+  }, [createEdge, projectId, canEdit]);
 
   const onNodesDelete = useCallback((deletedNodes: Node[]) => {
+    if (!canEdit) {
+      toast.error("You don't have permission to edit this project");
+      return;
+    }
     const nodeIds = deletedNodes.map((node) => parseInt(node.id));
     deleteNodes({ variables: { nodeIds } });
-  }, [deleteNodes]);
+  }, [deleteNodes, canEdit]);
 
   const onEdgesDelete = useCallback((deletedEdges: Edge[]) => {
+    if (!canEdit) {
+      toast.error("You don't have permission to edit this project");
+      return;
+    }
     const edgeIds = deletedEdges.map((edge) => parseInt(edge.id));
     deleteEdges({ variables: { edgeIds } });
-  }, [deleteEdges]);
+  }, [deleteEdges, canEdit]);
 
   const onClickComponent = useCallback((type: string) => {
-    // Logic to add node at center
+    if (!canEdit) {
+      toast.error("You don't have permission to edit this project");
+      return;
+    }
     const flowBounds = reactFlowWrapper.current?.getBoundingClientRect();
     if (!flowBounds) return;
-    // Center ??
     const position = screenToFlowPosition({
       x: flowBounds.left + flowBounds.width / 2,
       y: flowBounds.top + flowBounds.height / 2,
@@ -170,7 +208,7 @@ function FlowContent({ projectId }: FlowContentProps) {
       projectId,
     };
     createNode({ variables: { input: nodeInput } });
-  }, [screenToFlowPosition, createNode, projectId]);
+  }, [screenToFlowPosition, createNode, projectId, canEdit]);
 
   const onNodeDoubleClick = useCallback((_: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
@@ -183,7 +221,7 @@ function FlowContent({ projectId }: FlowContentProps) {
 
   return (
     <div className="flex h-screen w-full" ref={reactFlowWrapper}>
-      <AppSidebar onDragStart={onDragStart} onDoubleClick={onClickComponent} />
+      <AppSidebar onDragStart={onDragStart} onDoubleClick={onClickComponent} canEdit={canEdit} />
       <SidebarInset className="flex-1 h-full relative">
         <ReactFlow
           nodes={nodes}
@@ -191,12 +229,16 @@ function FlowContent({ projectId }: FlowContentProps) {
           nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onNodesDelete={onNodesDelete}
-          onEdgesDelete={onEdgesDelete}
+          onConnect={canEdit ? onConnect : undefined}
+          onNodesDelete={canEdit ? onNodesDelete : undefined}
+          onEdgesDelete={canEdit ? onEdgesDelete : undefined}
           onNodeDoubleClick={onNodeDoubleClick}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
+          onDrop={canEdit ? onDrop : undefined}
+          onDragOver={canEdit ? onDragOver : undefined}
+          nodesDraggable={canEdit}
+          nodesConnectable={canEdit}
+          elementsSelectable={true}
+          deleteKeyCode={canEdit ? ['Backspace', 'Delete'] : []}
           colorMode={theme === 'dark' ? 'dark' : 'light'}
           defaultEdgeOptions={{ animated: true }}
           fitView
@@ -209,6 +251,13 @@ function FlowContent({ projectId }: FlowContentProps) {
         {loading && (
           <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
             <SpinnerBadge text="Loading" />
+          </div>
+        )}
+
+        {!roleLoading && role && !canEdit && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full bg-muted/80 backdrop-blur-sm border border-border px-4 py-2 text-sm text-muted-foreground shadow-sm">
+            <Eye className="size-4" />
+            View Only
           </div>
         )}
 
@@ -239,3 +288,4 @@ export default function FlowEditor() {
     </ReactFlowProvider>
   );
 }
+

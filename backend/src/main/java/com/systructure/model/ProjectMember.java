@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "project_members", uniqueConstraints = @UniqueConstraint(columnNames = {"project_id", "user_id"}))
@@ -30,11 +30,11 @@ public class ProjectMember {
     private ProjectRole projectRole;
 
     @Column(name = "joined_at", nullable = false)
-    private LocalDateTime joinedAt;
+    private Instant joinedAt;
 
     @PrePersist
     protected void onCreate() {
-        joinedAt = LocalDateTime.now();
+        joinedAt = Instant.now();
     }
 
 }

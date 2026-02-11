@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,8 +44,8 @@ public class ProjectService {
         project.setDescription(description);
         project.setIsPublic(isPublic != null ? isPublic : false);
         project.setCreatedBy(currentUser);
-        project.setCreatedAt(LocalDateTime.now());
-        project.setUpdatedAt(LocalDateTime.now());
+        project.setCreatedAt(Instant.now());
+        project.setUpdatedAt(Instant.now());
         project.setNodes(new ArrayList<>());
         project.setEdges(new ArrayList<>());
 
@@ -55,7 +55,7 @@ public class ProjectService {
         membership.setUser(currentUser);
         membership.setProject(savedProject);
         membership.setProjectRole(ProjectRole.OWNER);
-        membership.setJoinedAt(LocalDateTime.now());
+        membership.setJoinedAt(Instant.now());
         projectMemberRepository.save(membership);
 
         savedProject.setProjectMembers(List.of(membership));
@@ -84,7 +84,7 @@ public class ProjectService {
             if (edgeIds != null) {
                 project.setEdges(edgeRepository.findAllById(edgeIds));
             }
-            project.setUpdatedAt(LocalDateTime.now());
+            project.setUpdatedAt(Instant.now());
             return projectRepository.save(project);
         });
     }
@@ -106,3 +106,4 @@ public class ProjectService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
+

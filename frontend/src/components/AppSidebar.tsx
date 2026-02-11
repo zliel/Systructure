@@ -44,9 +44,10 @@ const toolboxItems = [
 interface SidebarProps {
   onDragStart: (event: React.DragEvent, nodeType: string) => void
   onDoubleClick: (nodeType: string) => void
+  canEdit?: boolean
 }
 
-export const AppSidebar = memo(function AppSidebar({ onDragStart, onDoubleClick }: SidebarProps) {
+export const AppSidebar = memo(function AppSidebar({ onDragStart, onDoubleClick, canEdit = true }: SidebarProps) {
   const { user } = useAuth();
 
   const { loading, data } = useQuery<{ userById: { projectMemberships: ProjectMember[] } }>(
@@ -89,17 +90,20 @@ export const AppSidebar = memo(function AppSidebar({ onDragStart, onDoubleClick 
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Components</SidebarGroupLabel>
+          <SidebarGroupLabel>{canEdit ? 'Components' : 'Components (View Only)'}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {toolboxItems.map((item) => (
                 <SidebarMenuItem key={item.type}>
                   <SidebarMenuButton
-                    tooltip={item.label}
-                    className="cursor-grab active:cursor-grabbing border border-sidebar-border mb-2"
-                    draggable
-                    onDragStart={(e) => onDragStart(e, item.type)}
-                    onDoubleClick={() => onDoubleClick && onDoubleClick(item.type)}
+                    tooltip={canEdit ? item.label : `${item.label} (view only)`}
+                    className={canEdit
+                      ? "cursor-grab active:cursor-grabbing border border-sidebar-border mb-2"
+                      : "cursor-default border border-sidebar-border mb-2 opacity-50"
+                    }
+                    draggable={canEdit}
+                    onDragStart={canEdit ? (e) => onDragStart(e, item.type) : undefined}
+                    onDoubleClick={canEdit ? () => onDoubleClick && onDoubleClick(item.type) : undefined}
                   >
                     <item.icon />
                     <span>{item.label}</span>

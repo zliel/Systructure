@@ -1,6 +1,8 @@
 package com.systructure.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +21,11 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotBlank(message = "Project name is required")
+    @Size(min = 1, max = 255, message = "Project name must be between 1 and 255 characters")
     private String name;
+
+    @Size(max = 2000, message = "Description must not exceed 2000 characters")
     private String description;
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Node> nodes = new ArrayList<>();

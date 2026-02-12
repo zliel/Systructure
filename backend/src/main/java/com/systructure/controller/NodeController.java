@@ -22,11 +22,6 @@ public class NodeController {
         return nodeService.findById(id).orElse(null);
     }
 
-    @QueryMapping
-    public List<Node> allNodes() {
-        return nodeService.findAll();
-    }
-
     @MutationMapping
     public Node createNode(@Argument NodeInput newNodeData) {
         return nodeService.create(

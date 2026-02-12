@@ -4,37 +4,34 @@ type Query {
     nodeById(id: ID): Node
     edgeById(id: ID): Edge
     projectById(id: ID): Project
+    myProjects: [Project]
     projectMemberById(id: ID): ProjectMember
     projectMembershipsByUserId(userId: ID!): [ProjectMember]
     projectMembershipsByProjectId(projectId: ID!): [ProjectMember]
     projectMembershipsByUserIdAndProjectRole(userId: ID!, projectRole: ProjectRole!): [ProjectMember]
     userRoleInProject(userId: ID!, projectId: ID!): ProjectRole
     userById(id: ID): User
-    allNodes: [Node]
-    allEdges: [Edge]
-    allProjects: [Project]
-    allUsers: [User]
 }
 
 type Mutation {
     createNode(newNodeData: NodeInput!): Node
-    updateNode(id: ID!, updatedNodeData: UpdateNodeInput!): Node
+    updateNode(id: ID!, updatedNodeData: UpdateNodeInput): Node
     deleteNode(id: ID!): Node
     deleteNodes(ids: [ID!]!): [Node]
     createEdge(newEdgeData: EdgeInput!): Edge
-    updateEdge(id: ID!, updatedEdgeData: UpdateEdgeInput!): Edge
+    updateEdge(id: ID!, updatedEdgeData: UpdateEdgeInput): Edge
     deleteEdge(id: ID!): Edge
     deleteEdges(ids: [ID!]!): [Edge]
     createProject(newProjectData: CreateProjectInput!): Project
-    updateProject(id: ID!, updatedProjectData: UpdateProjectInput): Project
+    updateProject(id: ID!, updatedProjectData: ProjectInput): Project
 }
 
 input NodeInput {
     name: String!
-    type: NodeType
+    type: NodeType!
     xPos: Float
     yPos: Float
-    projectId: ID
+    projectId: ID!
 }
 
 input UpdateNodeInput {
@@ -48,7 +45,7 @@ input UpdateNodeInput {
 input EdgeInput {
     sourceNodeId: ID!
     targetNodeId: ID!
-    projectId: ID
+    projectId: ID!
 }
 
 input UpdateEdgeInput {
@@ -57,13 +54,7 @@ input UpdateEdgeInput {
     projectId: ID
 }
 
-input CreateProjectInput {
-    name: String!
-    description: String
-    isPublic: Boolean
-}
-
-input UpdateProjectInput {
+input ProjectInput {
     name: String
     description: String
     createdById: ID
@@ -71,6 +62,12 @@ input UpdateProjectInput {
     nodeIds: [ID]
     edgeIds: [ID]
     memberIds: [ID]
+}
+
+input CreateProjectInput {
+    name: String!
+    description: String
+    isPublic: Boolean
 }
 
 enum NodeType {
@@ -82,8 +79,8 @@ enum NodeType {
 
 type Node {
     id: ID!
-    name: String
-    type: NodeType
+    name: String!
+    type: NodeType!
     xPos: Float
     yPos: Float
     project: Project!
@@ -91,14 +88,14 @@ type Node {
 
 type Edge {
     id: ID!
-    sourceNode: Node
-    targetNode: Node
+    sourceNode: Node!
+    targetNode: Node!
     project: Project!
 }
 
 type Project {
     id: ID!
-    name: String
+    name: String!
     description: String
     nodes: [Node]
     edges: [Edge]
@@ -107,7 +104,6 @@ type Project {
     createdAt: DateTime
     updatedAt: DateTime
     isPublic: Boolean
-
 }
 
 enum UserRole {

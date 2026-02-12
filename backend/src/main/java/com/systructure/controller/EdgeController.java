@@ -23,11 +23,6 @@ public class EdgeController {
         return edgeService.findById(id).orElse(null);
     }
 
-    @QueryMapping
-    public List<Edge> allEdges() {
-        return edgeService.findAll();
-    }
-
     @SchemaMapping
     public Node sourceNode(Edge edge) {
         return edge.getSourceNode();
@@ -73,4 +68,3 @@ public class EdgeController {
     public record UpdateEdgeInput(Long sourceNodeId, Long targetNodeId, Long projectId) {
     }
 }
-

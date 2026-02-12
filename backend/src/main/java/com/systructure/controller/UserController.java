@@ -22,11 +22,6 @@ public class UserController {
         return userService.findById(id).orElse(null);
     }
 
-    @QueryMapping
-    public List<User> allUsers() {
-        return userService.findAll();
-    }
-
     @SchemaMapping
     public List<ProjectMember> projectMemberships(User user) {
         return user.getProjectMemberships();

@@ -24,8 +24,8 @@ public class ProjectController {
     }
 
     @QueryMapping
-    public List<Project> allProjects() {
-        return projectService.findAll();
+    public List<Project> myProjects() {
+        return projectService.findAccessibleByUser();
     }
 
     @SchemaMapping

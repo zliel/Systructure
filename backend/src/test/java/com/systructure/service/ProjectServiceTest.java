@@ -108,14 +108,50 @@ class ProjectServiceTest {
     }
 
     @Test
-    @DisplayName("Should find all projects")
-    void shouldFindAllProjects() {
-        when(projectRepository.findAll()).thenReturn(List.of(testProject));
+    @DisplayName("Should find accessible projects for user")
+    void shouldFindAccessibleProjects() {
+        when(authorizationService.getCurrentUserId()).thenReturn(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
-        List<Project> result = projectService.findAll();
+        ProjectMember membership = new ProjectMember();
+        membership.setProject(testProject);
+        membership.setUser(testUser);
+        membership.setProjectRole(ProjectRole.OWNER);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("Test Project");
+        when(projectMemberRepository.findByUser(testUser)).thenReturn(List.of(membership));
+
+        Project publicProject = new Project();
+        publicProject.setId(2L);
+        publicProject.setName("Public Project");
+        publicProject.setIsPublic(true);
+
+        when(projectRepository.findByIsPublicTrue()).thenReturn(List.of(publicProject));
+
+        List<Project> result = projectService.findAccessibleByUser();
+
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting(Project::getName)
+                .containsExactlyInAnyOrder("Test Project", "Public Project");
+    }
+
+    @Test
+    @DisplayName("Should not duplicate public projects user is already a member of")
+    void shouldNotDuplicatePublicMemberProjects() {
+        testProject.setIsPublic(true); // User is member of this public project
+        when(authorizationService.getCurrentUserId()).thenReturn(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+
+        ProjectMember membership = new ProjectMember();
+        membership.setProject(testProject);
+        membership.setUser(testUser);
+        membership.setProjectRole(ProjectRole.OWNER);
+
+        when(projectMemberRepository.findByUser(testUser)).thenReturn(List.of(membership));
+        when(projectRepository.findByIsPublicTrue()).thenReturn(List.of(testProject));
+
+        List<Project> result = projectService.findAccessibleByUser();
+
+        assertThat(result).hasSize(1); // Not duplicated
     }
 
     @Test

@@ -1,5 +1,5 @@
 import { type Node as FlowNode, type Edge as FlowEdge, type XYPosition, Position } from '@xyflow/react';
-import type { Node as ProjectNode, Edge as ProjectEdge } from '../types';
+import type { Node as ProjectNode, Edge as ProjectEdge } from '@/features/editor/types';
 
 export function mapProjectNodesToFlowNodes(projectNodes: ProjectNode[]): FlowNode[] {
   return projectNodes.map((node) => ({

@@ -1,7 +1,5 @@
 import { gql } from '@apollo/client';
 
-
-
 export const CREATE_NODE = gql`
   mutation CreateNode($input: NodeInput!) {
     createNode(newNodeData: $input) {
@@ -12,19 +10,7 @@ export const CREATE_NODE = gql`
       yPos
     }
   }
-`
-
-export const GET_NODES = gql`
-  query GetNodes {
-    allNodes {
-      id
-      name
-      type
-      xPos
-      yPos
-    }
-  }
-`
+`;
 
 export const UPDATE_NODE = gql`
   mutation UpdateNode($nodeId: ID!, $input: UpdateNodeInput!) {
@@ -36,7 +22,7 @@ export const UPDATE_NODE = gql`
       yPos
     }
   }
-`
+`;
 
 export const DELETE_NODE = gql`
   mutation DeleteNode($nodeId: ID!) {
@@ -46,7 +32,7 @@ export const DELETE_NODE = gql`
       type
     }
   }
-`
+`;
 
 export const DELETE_NODES = gql`
   mutation DeleteNodes($nodeIds: [ID!]!) {
@@ -56,8 +42,7 @@ export const DELETE_NODES = gql`
       type
     }
   }
-`
-
+`;
 
 export const CREATE_EDGE = gql`
   mutation CreateEdge($input: EdgeInput!) {
@@ -74,24 +59,7 @@ export const CREATE_EDGE = gql`
       }
     }
   }
-`
-
-export const GET_EDGES = gql`
-  query GetEdges {
-    allEdges {
-      id
-      sourceNode {
-        id
-      }
-      targetNode {
-        id
-      }
-      project {
-        id
-      }
-    }
-  }
-`
+`;
 
 export const UPDATE_EDGE = gql`
   mutation UpdateEdge($edgeId: ID!, $input: UpdateEdgeInput!) {
@@ -108,7 +76,7 @@ export const UPDATE_EDGE = gql`
       }
     }
   }
-`
+`;
 
 export const DELETE_EDGE = gql`
   mutation DeleteEdge($edgeId: ID!) {
@@ -122,7 +90,7 @@ export const DELETE_EDGE = gql`
       }
     }
   }
-`
+`;
 
 export const DELETE_EDGES = gql`
   mutation DeleteEdges($edgeIds: [ID!]!) {
@@ -136,75 +104,4 @@ export const DELETE_EDGES = gql`
       }
     }
   }
-`
-
-export const CREATE_PROJECT = gql`
-  mutation CreateProject($input: CreateProjectInput!) {
-    createProject(newProjectData: $input) {
-      id
-      name
-      description
-      isPublic
-    }
-  }
-`
-
-export const GET_PROJECT_COMPONENTS = gql`
-  query GetProjectComponents($projectId: ID!) {
-    projectById(id: $projectId) {
-      id
-      name
-      nodes {
-        id
-        name
-        type
-        xPos
-        yPos
-      }
-      edges {
-        id
-        sourceNode {
-          id
-        }
-        targetNode {
-          id
-        }
-      }
-    }
-  }
-`
-
-export const GET_USER = gql`
-  query GetUser($userId: ID!) {
-    userById(id: $userId) {
-      id
-      username
-      email
-      role
-      projectMemberships {
-        id
-        projectRole
-        joinedAt
-        project {
-          id
-          name
-        }
-      }
-    }
-  }
-`
-
-export const GET_USER_PROJECTS = gql`
-  query GetUserProjects($userId: ID!) {
-    userById(id: $userId) {
-      projectMemberships {
-        id
-        projectRole
-        project {
-          id
-          name
-        }
-      }
-    }
-  }
-`
+`;

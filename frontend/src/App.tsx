@@ -1,5 +1,3 @@
-//FIXME: Frontend
-
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import DashboardLayout from './layouts/DashboardLayout';
 import EditorLayout from './layouts/EditorLayout';
@@ -10,7 +8,7 @@ import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
 import LandingPage from './pages/LandingPage';
 import AboutPage from './pages/AboutPage';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 const router = createBrowserRouter([

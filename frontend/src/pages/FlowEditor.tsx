@@ -18,9 +18,10 @@ import '@xyflow/react/dist/style.css';
 import { AppSidebar } from '@/components/AppSidebar';
 import { nodeTypes } from '@/components/flow';
 import { mapProjectEdgesToFlowEdges, mapProjectNodesToFlowNodes } from '@/utils/transformers';
-import { type Node as ProjectNode, type Edge as ProjectEdge, NodeType, type EdgeInput, type NodeInput } from '@/types';
+import { type Node as ProjectNode, type Edge as ProjectEdge, NodeType, type EdgeInput, type NodeInput } from '@/features/editor/types';
 import { useMutation, useQuery } from '@apollo/client/react';
-import { CREATE_EDGE, CREATE_NODE, DELETE_EDGES, DELETE_NODES, GET_PROJECT_COMPONENTS } from '@/queries';
+import { CREATE_EDGE, CREATE_NODE, DELETE_EDGES, DELETE_NODES } from '@/features/editor/api/mutations';
+import { GET_PROJECT_COMPONENTS } from '@/features/editor/api/queries';
 import { SpinnerBadge } from '@/components/SpinnerBadge';
 import { useTheme } from '@/components/theme-provider';
 import { NodeDetailsPanel } from '@/components/NodeDetailsPanel';
@@ -57,9 +58,9 @@ function FlowContent({ projectId }: FlowContentProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
   const { screenToFlowPosition, updateNodeData } = useReactFlow();
 
-  // Queries & Mutations
   const { canEdit, role, isLoading: roleLoading } = useProjectRole(projectId);
 
+  // Queries & Mutations
   const { loading, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId } });
 
   const [createNode] = useMutation<{ createNode: ProjectNode }>(CREATE_NODE, {

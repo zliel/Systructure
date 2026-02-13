@@ -11,7 +11,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { useTheme } from '../theme-provider';
 import { nodeTypes } from '@/components/flow';
-import { NodeType } from '@/types';
+import { NodeType } from '@/features/editor/types';
 
 const demoNodes: Node[] = [
   {

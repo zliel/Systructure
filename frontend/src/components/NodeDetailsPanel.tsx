@@ -19,8 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UPDATE_NODE } from '@/queries';
-import { NodeType, type Node as ProjectNode, type UpdateNodeInput } from '@/types';
+import { UPDATE_NODE } from '@/features/editor/api/mutations';
+import { NodeType, type Node as ProjectNode, type UpdateNodeInput } from '@/features/editor/types';
 
 interface NodeDetailsPanelProps {
   node: Node | null;

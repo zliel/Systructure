@@ -1,0 +1,30 @@
+import { Navigate, useLocation } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
+
+import { useAuth } from '@/features/auth/contexts/AuthContext';
+
+interface ProtectedRouteProps {
+    children: React.ReactNode;
+}
+
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
+    const { isAuthenticated, isLoading } = useAuth();
+    const location = useLocation();
+
+    // Show loading spinner while checking auth state
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+        );
+    }
+
+    // Redirect to login if not authenticated
+    if (!isAuthenticated) {
+        // Save the current location to redirect back after login
+        return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    }
+
+    return <>{children}</>;
+}

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom"
-import { LayoutGrid, Workflow } from "lucide-react"
+import { Workflow } from "lucide-react"
 
 import { ThemeToggle } from "@/components/theme-toggle"
-import { useAuth } from "@/contexts/AuthContext"
+import { useAuth } from "@/features/auth/contexts/AuthContext"
 
 import {
   DropdownMenu,

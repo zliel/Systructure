@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
   return (
-    <div className="flex min-h-100 w-full items-center justify-center p-6">
+    <div className="flex min-h-100 items-center justify-center p-6">
       <div className="w-full max-w-md rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
         <div className="flex flex-col items-center space-y-4 text-center">
           <div className="rounded-full bg-destructive/10 p-3">

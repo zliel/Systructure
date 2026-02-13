@@ -1,17 +1,20 @@
 package com.systructure.service;
 
+import com.systructure.model.Project;
 import com.systructure.model.ProjectMember;
 import com.systructure.model.ProjectRole;
 import com.systructure.model.User;
 import com.systructure.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
-import com.systructure.model.ProjectMember;
 
 
 @Service

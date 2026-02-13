@@ -15,9 +15,9 @@ import { ErrorLink } from "@apollo/client/link/error"
 import { CombinedGraphQLErrors } from "@apollo/client/errors"
 import { ApolloProvider } from "@apollo/client/react"
 import { ThemeProvider } from "./components/theme-provider.tsx"
-import { AuthProvider } from "./contexts/AuthContext.tsx"
-import { getAccessToken, getRefreshToken, setTokens, clearTokens, isTokenExpired } from "./lib/auth.ts"
-import { refreshTokenApi } from "./lib/authApi.ts"
+import { AuthProvider } from "./features/auth/contexts/AuthContext.tsx"
+import { getAccessToken, getRefreshToken, setTokens, clearTokens, isTokenExpired } from "./features/auth/api/auth.ts"
+import { refreshTokenApi } from "./features/auth/api/authApi.ts"
 import { Toaster } from "@/components/ui/sonner"
 
 // Auth link - adds Authorization header to every request

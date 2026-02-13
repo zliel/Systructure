@@ -9,7 +9,7 @@ import {
 } from "lucide-react"
 
 import { ThemeToggle } from "@/components/theme-toggle"
-import { useAuth } from "@/contexts/AuthContext"
+import { useAuth } from "@/features/auth/contexts/AuthContext"
 
 import { NavUser } from "@/components/nav-user"
 import { ProjectSwitcher } from "@/components/project-switcher"
@@ -30,8 +30,8 @@ import {
 import { memo } from "react"
 import { Button } from "./ui/button"
 import { useQuery } from "@apollo/client/react"
-import { GET_USER_PROJECTS } from "@/queries"
-import type { ProjectMember } from "@/types"
+import { GET_USER_PROJECTS } from "@/features/projects/api/queries"
+import type { ProjectMember } from "@/features/projects/types"
 
 // Toolbox items for dragging
 const toolboxItems = [

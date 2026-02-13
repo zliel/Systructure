@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { LayoutGrid, Loader2 } from 'lucide-react';
 
-import { useAuth, AuthApiError } from '@/contexts/AuthContext';
+import { useAuth, AuthApiError } from '@/features/auth/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

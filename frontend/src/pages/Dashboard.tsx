@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client/react';
-import { GET_USER_PROJECTS } from '@/queries';
-import type { ProjectMember } from '@/types';
+import { GET_USER_PROJECTS } from '@/features/projects/api/queries';
+import type { ProjectMember } from '@/features/projects/types';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { CreateProjectDialog } from '@/components/CreateProjectDialog';
 
 export default function Dashboard() {
@@ -60,7 +60,7 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Joined: {new Date(Number(membership.joinedAt)).toLocaleDateString()}
+                    Joined: {new Date(membership.joinedAt).toLocaleDateString()}
                   </p>
                 </CardContent>
                 <CardFooter>

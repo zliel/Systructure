@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client/react';
-import { useAuth } from '@/contexts/AuthContext';
-import { GET_USER_PROJECTS } from '@/queries';
-import type { ProjectMember, ProjectRole } from '@/types';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
+import { GET_USER_PROJECTS } from '@/features/projects/api/queries';
+import type { ProjectMember, ProjectRole } from '@/features/projects/types';
 
 interface UseProjectRoleResult {
   role: ProjectRole | null;

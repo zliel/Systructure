@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import { Server, Database, MessageSquare, Network, type LucideIcon } from 'lucide-react';
-import { NodeType } from '@/types';
+import { NodeType } from '@/features/editor/types';
 import './system-node.css';
 
 export type SystemNodeData = {

@@ -13,8 +13,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CREATE_PROJECT, GET_USER_PROJECTS } from '@/queries';
-import { useAuth } from '@/contexts/AuthContext';
+import { CREATE_PROJECT } from '@/features/projects/api/queries';
+import { GET_USER_PROJECTS } from '@/features/projects/api/queries';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
 
 interface CreateProjectDialogProps {
   open: boolean;

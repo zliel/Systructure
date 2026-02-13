@@ -19,7 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { CreateProjectDialog } from "@/components/CreateProjectDialog"
-import type { Project, ProjectMember } from "@/types"
+import type { Project, ProjectMember } from "@/features/projects/types"
 
 export function ProjectSwitcher({
   projects

@@ -86,4 +86,17 @@ public class ProjectMemberService {
             return member;
         });
     }
+
+    /**
+     * Adds a member by email or username. Tries email first, then username.
+     */
+    @Transactional
+    public ProjectMember addMemberByIdentifier(Long projectId, String identifier, ProjectRole role) {
+        // Try email first, then username
+        User user = userRepository.findByEmail(identifier)
+                .or(() -> userRepository.findByUsername(identifier))
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + identifier));
+
+        return addMember(projectId, user.getId(), role);
+    }
 }

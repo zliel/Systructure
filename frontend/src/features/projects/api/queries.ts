@@ -30,6 +30,15 @@ export const GET_USER_PROJECTS = gql`
         project {
           id
           name
+          description
+          updatedAt
+          isPublic
+          nodes {
+            id
+          }
+          edges {
+            id
+          }
         }
       }
     }

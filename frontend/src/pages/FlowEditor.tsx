@@ -58,7 +58,7 @@ function FlowContent({ projectId }: FlowContentProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
   const { screenToFlowPosition, updateNodeData } = useReactFlow();
 
-  const { canEdit, role, isLoading: roleLoading } = useProjectRole(projectId);
+  const { canEdit, canManage, role, isLoading: roleLoading } = useProjectRole(projectId);
 
   // Queries & Mutations
   const { loading, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId } });
@@ -222,7 +222,7 @@ function FlowContent({ projectId }: FlowContentProps) {
 
   return (
     <div className="flex h-screen w-full" ref={reactFlowWrapper}>
-      <AppSidebar onDragStart={onDragStart} onDoubleClick={onClickComponent} canEdit={canEdit} />
+      <AppSidebar onDragStart={onDragStart} onDoubleClick={onClickComponent} canEdit={canEdit} canManage={canManage} projectId={projectId} />
       <SidebarInset className="flex-1 h-full relative">
         <ReactFlow
           nodes={nodes}

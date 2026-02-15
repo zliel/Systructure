@@ -26,5 +26,16 @@ public class UserController {
     public List<ProjectMember> projectMemberships(User user) {
         return user.getProjectMemberships();
     }
+
+
+    /**
+     * GraphQL resolver for User.username.
+     * Without this, GraphQL calls getUsername() which returns email
+     * (overridden for Spring Security's UserDetails).
+     */
+    @SchemaMapping
+    public String username(User user) {
+        return user.getDisplayName();
+    }
 }
 

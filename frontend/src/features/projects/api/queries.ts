@@ -55,3 +55,18 @@ export const CREATE_PROJECT = gql`
     }
   }
 `;
+
+export const GET_PROJECT_MEMBERS = gql`
+  query GetProjectMembers($projectId: ID!) {
+    projectMembershipsByProjectId(projectId: $projectId) {
+      id
+      projectRole
+      joinedAt
+      user {
+        id
+        username
+        email
+      }
+    }
+  }
+`;

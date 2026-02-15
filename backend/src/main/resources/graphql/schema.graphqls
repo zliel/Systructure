@@ -24,6 +24,9 @@ type Mutation {
     deleteEdges(ids: [ID!]!): [Edge]
     createProject(newProjectData: CreateProjectInput!): Project
     updateProject(id: ID!, updatedProjectData: ProjectInput): Project
+    addProjectMember(input: AddMemberInput!): ProjectMember
+    updateProjectMemberRole(input: UpdateMemberRoleInput!): ProjectMember
+    removeProjectMember(memberId: ID!): ProjectMember
 }
 
 input NodeInput {
@@ -68,6 +71,17 @@ input CreateProjectInput {
     name: String!
     description: String
     isPublic: Boolean
+}
+
+input AddMemberInput {
+    projectId: ID!
+    identifier: String!
+    role: ProjectRole!
+}
+
+input UpdateMemberRoleInput {
+    memberId: ID!
+    role: ProjectRole!
 }
 
 enum NodeType {

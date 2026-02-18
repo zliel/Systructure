@@ -94,8 +94,9 @@ export function MemberList({ projectId, onInvite }: MemberListProps) {
   const members = data?.projectMembershipsByProjectId ?? [];
 
   // Is the current user the owner?
+  const currentUserId = String(currentUser?.id ?? '');
   const isCurrentUserOwner = members.some(
-    (m) => m.user.id === currentUser?.id && m.projectRole === 'OWNER'
+    (m) => String(m.user.id) === currentUserId && m.projectRole === 'OWNER'
   );
 
   const handleChangeRole = (memberId: number, newRole: 'EDITOR' | 'VIEWER') => {
@@ -122,7 +123,7 @@ export function MemberList({ projectId, onInvite }: MemberListProps) {
         {members.map((member) => {
           const config = roleConfig[member.projectRole] ?? roleConfig.VIEWER;
           const RoleIcon = config.icon;
-          const isSelf = member.user.id === currentUser?.id;
+          const isSelf = String(member.user.id) === currentUserId;
           const isOwner = member.projectRole === 'OWNER';
 
           return (

@@ -27,8 +27,10 @@ import { useTheme } from '@/components/theme-provider';
 import { NodeDetailsPanel } from '@/components/NodeDetailsPanel';
 import { SidebarInset } from '@/components/ui/sidebar';
 import { useProjectRole } from '@/hooks/use-project-role';
+import { useNodePositionSync } from '@/hooks/use-node-position-sync';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Eye } from 'lucide-react';
+import { Check, CloudUpload, Eye } from 'lucide-react';
 
 interface ProjectComponents {
   id: number;
@@ -59,6 +61,7 @@ function FlowContent({ projectId }: FlowContentProps) {
   const { screenToFlowPosition, updateNodeData } = useReactFlow();
 
   const { canEdit, canManage, role, isLoading: roleLoading } = useProjectRole(projectId);
+  const { saveStatus, onNodeDragStop } = useNodePositionSync({ enabled: canEdit });
 
   // Queries & Mutations
   const { loading, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId } });
@@ -238,6 +241,7 @@ function FlowContent({ projectId }: FlowContentProps) {
           onDragOver={canEdit ? onDragOver : undefined}
           nodesDraggable={canEdit}
           nodesConnectable={canEdit}
+          onNodeDragStop={canEdit ? onNodeDragStop : undefined}
           elementsSelectable={true}
           deleteKeyCode={canEdit ? ['Backspace', 'Delete'] : []}
           colorMode={theme === 'dark' ? 'dark' : 'light'}
@@ -252,6 +256,23 @@ function FlowContent({ projectId }: FlowContentProps) {
         {loading && (
           <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
             <SpinnerBadge text="Loading" />
+          </div>
+        )}
+
+        {saveStatus === 'saving' && (
+          <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
+            <Badge variant="secondary" className="gap-1.5">
+              <CloudUpload className="size-3.5 animate-pulse" />
+              Saving...
+            </Badge>
+          </div>
+        )}
+        {saveStatus === 'saved' && (
+          <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
+            <Badge variant="secondary" className="gap-1.5 text-emerald-600 dark:text-emerald-400">
+              <Check className="size-3.5" />
+              Saved
+            </Badge>
           </div>
         )}
 

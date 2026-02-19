@@ -1,22 +1,30 @@
 package com.systructure.controller;
 
 import com.systructure.model.*;
+import com.systructure.repository.EdgeRepository;
+import com.systructure.repository.NodeRepository;
+import com.systructure.repository.ProjectMemberRepository;
 import com.systructure.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final NodeRepository nodeRepository;
+    private final EdgeRepository edgeRepository;
+    private final ProjectMemberRepository projectMemberRepository;
 
     @QueryMapping
     public Project projectById(@Argument Long id) {
@@ -28,24 +36,42 @@ public class ProjectController {
         return projectService.findAccessibleByUser();
     }
 
-    @SchemaMapping
-    public List<Node> nodes(Project project) {
-        return project.getNodes();
+    @BatchMapping
+    public Map<Project, List<Node>> nodes(List<Project> projects) {
+        List<Node> allNodes = nodeRepository.findByProjectIn(projects);
+        return projects.stream().collect(Collectors.toMap(
+                p -> p,
+                p -> allNodes.stream()
+                        .filter(n -> n.getProject().getId().equals(p.getId()))
+                        .toList()
+        ));
     }
 
-    @SchemaMapping
-    public List<Edge> edges(Project project) {
-        return project.getEdges();
+    @BatchMapping
+    public Map<Project, List<Edge>> edges(List<Project> projects) {
+        List<Edge> allEdges = edgeRepository.findByProjectIn(projects);
+        return projects.stream().collect(Collectors.toMap(
+                p -> p,
+                p -> allEdges.stream()
+                        .filter(e -> e.getProject().getId().equals(p.getId()))
+                        .toList()
+        ));
     }
 
-    @SchemaMapping
-    public User createdBy(Project project) {
-        return project.getCreatedBy();
+    @BatchMapping
+    public Map<Project, User> createdBy(List<Project> projects) {
+        return projects.stream().collect(Collectors.toMap(p -> p, Project::getCreatedBy));
     }
 
-    @SchemaMapping
-    public List<ProjectMember> members(Project project) {
-        return project.getProjectMembers();
+    @BatchMapping
+    public Map<Project, List<ProjectMember>> members(List<Project> projects) {
+        List<ProjectMember> allMembers = projectMemberRepository.findByProjectIn(projects);
+        return projects.stream().collect(Collectors.toMap(
+                p -> p,
+                p -> allMembers.stream()
+                        .filter(m -> m.getProject().getId().equals(p.getId()))
+                        .toList()
+        ));
     }
 
     @MutationMapping
@@ -87,3 +113,4 @@ public class ProjectController {
     ) {
     }
 }
+

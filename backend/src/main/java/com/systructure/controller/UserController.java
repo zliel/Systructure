@@ -2,31 +2,41 @@ package com.systructure.controller;
 
 import com.systructure.model.ProjectMember;
 import com.systructure.model.User;
+import com.systructure.repository.ProjectMemberRepository;
 import com.systructure.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private final ProjectMemberRepository projectMemberRepository;
 
     @QueryMapping
     public User userById(@Argument Long id) {
         return userService.findById(id).orElse(null);
     }
 
-    @SchemaMapping
-    public List<ProjectMember> projectMemberships(User user) {
-        return user.getProjectMemberships();
+    @BatchMapping
+    public Map<User, List<ProjectMember>> projectMemberships(List<User> users) {
+        List<ProjectMember> allMemberships = projectMemberRepository.findByUserIn(users);
+        return users.stream().collect(Collectors.toMap(
+                u -> u,
+                u -> allMemberships.stream()
+                        .filter(m -> m.getUser().getId().equals(u.getId()))
+                        .toList()
+        ));
     }
-
 
     /**
      * GraphQL resolver for User.username.

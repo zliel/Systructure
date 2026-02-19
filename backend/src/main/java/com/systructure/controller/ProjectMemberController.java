@@ -4,22 +4,25 @@ import com.systructure.model.Project;
 import com.systructure.model.ProjectMember;
 import com.systructure.model.ProjectRole;
 import com.systructure.model.User;
+import com.systructure.repository.ProjectRepository;
+import com.systructure.repository.UserRepository;
 import com.systructure.service.ProjectMemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
 public class ProjectMemberController {
 
     private final ProjectMemberService projectMemberService;
+    private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
 
     @QueryMapping
     public ProjectMember projectMemberById(@Argument Long id) {
@@ -41,14 +44,30 @@ public class ProjectMemberController {
         return projectMemberService.findByProjectId(projectId);
     }
 
-    @SchemaMapping
-    public User user(ProjectMember projectMember) {
-        return projectMember.getUser();
+    @BatchMapping
+    public Map<ProjectMember, User> user(List<ProjectMember> members) {
+        Set<Long> userIds = members.stream()
+                .map(m -> m.getUser().getId())
+                .collect(Collectors.toSet());
+        Map<Long, User> userMap = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, u -> u));
+        return members.stream().collect(Collectors.toMap(
+                m -> m,
+                m -> userMap.get(m.getUser().getId())
+        ));
     }
 
-    @SchemaMapping
-    public Project project(ProjectMember projectMember) {
-        return projectMember.getProject();
+    @BatchMapping
+    public Map<ProjectMember, Project> project(List<ProjectMember> members) {
+        Set<Long> projectIds = members.stream()
+                .map(m -> m.getProject().getId())
+                .collect(Collectors.toSet());
+        Map<Long, Project> projectMap = projectRepository.findAllById(projectIds).stream()
+                .collect(Collectors.toMap(Project::getId, p -> p));
+        return members.stream().collect(Collectors.toMap(
+                m -> m,
+                m -> projectMap.get(m.getProject().getId())
+        ));
     }
 
     @SchemaMapping
@@ -80,4 +99,3 @@ public class ProjectMemberController {
                 .orElseThrow(() -> new IllegalArgumentException("Member not found: " + memberId));
     }
 }
-

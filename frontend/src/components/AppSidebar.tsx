@@ -160,7 +160,7 @@ export const AppSidebar = memo(function AppSidebar({ onDragStart, onDoubleClick,
           </div>
           {/* Row 2: Docker Compose */}
           <Button variant="outline" className="justify-start gap-2 overflow-hidden hover:border-primary/40 hover:text-primary group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-1.5!" >
-            <Container className="size-5 shrink-0" />
+            <Container className="size-5 shrink-0 group-data-[collapsible=icon]:pr-0.5! group-data-[collapsible=icon]:pb-0.5!" />
             <span className="truncate">Docker Compose</span>
           </Button>
         </div>

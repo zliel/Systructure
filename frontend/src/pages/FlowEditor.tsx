@@ -29,6 +29,7 @@ import { NodeDetailsPanel } from '@/components/NodeDetailsPanel';
 import { SidebarInset } from '@/components/ui/sidebar';
 import { useProjectRole } from '@/hooks/use-project-role';
 import { useNodePositionSync } from '@/hooks/use-node-position-sync';
+import { PageTransition } from '@/components/PageTransition';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Check, CloudUpload, Eye } from 'lucide-react';
@@ -240,75 +241,77 @@ function FlowContent({ projectId }: FlowContentProps) {
   }, [updateNodeData]);
 
   return (
-    <div className="flex h-screen w-full" ref={reactFlowWrapper}>
-      <AppSidebar onDragStart={onDragStart} onDoubleClick={onClickComponent} canEdit={canEdit} canManage={canManage} projectId={projectId} />
-      <SidebarInset className="flex-1 h-full relative">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={canEdit ? onConnect : undefined}
-          onNodesDelete={canEdit ? onNodesDelete : undefined}
-          onEdgesDelete={canEdit ? onEdgesDelete : undefined}
-          onNodeDoubleClick={onNodeDoubleClick}
-          onDrop={canEdit ? onDrop : undefined}
-          onDragOver={canEdit ? onDragOver : undefined}
-          nodesDraggable={canEdit}
-          nodesConnectable={canEdit}
-          isValidConnection={isValidConnection}
-          onNodeDragStop={canEdit ? onNodeDragStop : undefined}
-          elementsSelectable={true}
-          deleteKeyCode={canEdit ? ['Backspace', 'Delete'] : []}
-          colorMode={theme === 'dark' ? 'dark' : 'light'}
-          defaultEdgeOptions={{ animated: true }}
-          fitView
-        >
-          <Background />
-          <Controls />
-          <MiniMap />
-        </ReactFlow>
+    <PageTransition className="flex h-screen w-full">
+      <div className="flex h-full w-full" ref={reactFlowWrapper}>
+        <AppSidebar onDragStart={onDragStart} onDoubleClick={onClickComponent} canEdit={canEdit} canManage={canManage} projectId={projectId} />
+        <SidebarInset className="flex-1 h-full relative">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={canEdit ? onConnect : undefined}
+            onNodesDelete={canEdit ? onNodesDelete : undefined}
+            onEdgesDelete={canEdit ? onEdgesDelete : undefined}
+            onNodeDoubleClick={onNodeDoubleClick}
+            onDrop={canEdit ? onDrop : undefined}
+            onDragOver={canEdit ? onDragOver : undefined}
+            nodesDraggable={canEdit}
+            nodesConnectable={canEdit}
+            isValidConnection={isValidConnection}
+            onNodeDragStop={canEdit ? onNodeDragStop : undefined}
+            elementsSelectable={true}
+            deleteKeyCode={canEdit ? ['Backspace', 'Delete'] : []}
+            colorMode={theme === 'dark' ? 'dark' : 'light'}
+            defaultEdgeOptions={{ animated: true }}
+            fitView
+          >
+            <Background />
+            <Controls />
+            <MiniMap />
+          </ReactFlow>
 
-        {loading && (
-          <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
-            <SpinnerBadge text="Loading" />
-          </div>
-        )}
+          {loading && (
+            <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
+              <SpinnerBadge text="Loading" />
+            </div>
+          )}
 
-        {saveStatus === 'saving' && (
-          <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
-            <Badge variant="secondary" className="gap-1.5">
-              <CloudUpload className="size-3.5 animate-pulse" />
-              Saving...
-            </Badge>
-          </div>
-        )}
-        {saveStatus === 'saved' && (
-          <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
-            <Badge variant="secondary" className="gap-1.5 text-emerald-600 dark:text-emerald-400">
-              <Check className="size-3.5" />
-              Saved
-            </Badge>
-          </div>
-        )}
+          {saveStatus === 'saving' && (
+            <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
+              <Badge variant="secondary" className="gap-1.5">
+                <CloudUpload className="size-3.5 animate-pulse" />
+                Saving...
+              </Badge>
+            </div>
+          )}
+          {saveStatus === 'saved' && (
+            <div style={{ position: 'absolute', top: 22, right: 60, zIndex: 100 }}>
+              <Badge variant="secondary" className="gap-1.5 text-emerald-600 dark:text-emerald-400">
+                <Check className="size-3.5" />
+                Saved
+              </Badge>
+            </div>
+          )}
 
-        {!roleLoading && role && !canEdit && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full bg-muted/80 backdrop-blur-sm border border-border px-4 py-2 text-sm text-muted-foreground shadow-sm">
-            <Eye className="size-4" />
-            View Only
-          </div>
-        )}
+          {!roleLoading && role && !canEdit && (
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full bg-muted/80 backdrop-blur-sm border border-border px-4 py-2 text-sm text-muted-foreground shadow-sm">
+              <Eye className="size-4" />
+              View Only
+            </div>
+          )}
 
-        <NodeDetailsPanel
-          node={selectedNode}
-          projectId={projectId}
-          open={isPanelOpen}
-          onOpenChange={setIsPanelOpen}
-          onSave={handleNodeSave}
-        />
-      </SidebarInset>
-    </div>
+          <NodeDetailsPanel
+            node={selectedNode}
+            projectId={projectId}
+            open={isPanelOpen}
+            onOpenChange={setIsPanelOpen}
+            onSave={handleNodeSave}
+          />
+        </SidebarInset>
+      </div>
+    </PageTransition>
   );
 }
 
@@ -327,4 +330,3 @@ export default function FlowEditor() {
     </ReactFlowProvider>
   );
 }
-

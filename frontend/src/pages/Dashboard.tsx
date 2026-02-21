@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@apollo/client/react';
 import { GET_USER_PROJECTS } from '@/features/projects/api/queries';
 import type { ProjectMember } from '@/features/projects/types';
+import { PageTransition } from '@/components/PageTransition';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -117,7 +118,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <div className="space-y-6">
+      <PageTransition className="space-y-6">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -187,7 +188,7 @@ export default function Dashboard() {
               visible: { transition: { staggerChildren: 0.06 } },
             }}
           >
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence>
               {filteredProjects.map((membership) => {
                 const { project } = membership;
                 const nodeCount = project.nodes?.length ?? 0;
@@ -197,11 +198,8 @@ export default function Dashboard() {
                 return (
                   <motion.div
                     key={project.id}
-                    layout
-                    variants={{
-                      hidden: { opacity: 0, y: 12 },
-                      visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } },
-                    }}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
                     exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
                     whileHover={{ scale: 1.02, transition: { duration: 0.15 } }}
                     whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}
@@ -289,7 +287,7 @@ export default function Dashboard() {
             </AnimatePresence>
           </motion.div>
         )}
-      </div>
+      </PageTransition>
 
       <CreateProjectDialog
         open={isDialogOpen}

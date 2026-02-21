@@ -4,12 +4,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { LayoutGrid, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { useAuth, AuthApiError } from '@/features/auth/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PageTransition } from '@/components/PageTransition';
 
 const loginSchema = z.object({
   email: z.email('Invalid email address'),
@@ -24,6 +26,7 @@ export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shakeKey, setShakeKey] = useState(0);
 
   // Get the return URL from location state or default to dashboard
   const from = (location.state as { from?: string })?.from || '/dashboard';
@@ -54,13 +57,14 @@ export default function LoginPage() {
       } else {
         setError('An unexpected error occurred. Please try again.');
       }
+      setShakeKey((k) => k + 1);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <PageTransition className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -71,11 +75,20 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {error && (
-              <div className="p-3 text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-md">
-                {error}
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {error && (
+                <motion.div
+                  key={shakeKey}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="p-3 text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-md animate-shake"
+                >
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -125,7 +138,6 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageTransition>
   );
 }
-

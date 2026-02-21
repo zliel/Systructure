@@ -56,6 +56,7 @@ export function ProjectSettingsDialog({
     handleSubmit,
     reset,
     formState: { errors, isDirty },
+    watch,
   } = useForm<SettingsFormData>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
@@ -127,10 +128,21 @@ export function ProjectSettingsDialog({
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-3">
                 {/* Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="project-name">Name</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="project-name">Name</Label>
+                    <span className={`text-xs tabular-nums transition-colors ${(watch('name')?.length ?? 0) >= 50
+                      ? 'text-red-500'
+                      : (watch('name')?.length ?? 0) > 40
+                        ? 'text-yellow-500'
+                        : 'text-muted-foreground'
+                      }`}>
+                      {watch('name')?.length ?? 0}/50
+                    </span>
+                  </div>
                   <Input
                     id="project-name"
                     placeholder="My Project"
+                    maxLength={50}
                     {...register('name')}
                   />
                   {errors.name && (

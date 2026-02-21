@@ -79,12 +79,26 @@ export function CreateProjectDialog({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="project-name">Project name</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="project-name">Project name</Label>
+              <span className={`text-xs tabular-nums transition-colors ${projectName.length >= 50
+                ? 'text-red-500'
+                : projectName.length > 40
+                  ? 'text-yellow-500'
+                  : 'text-muted-foreground'
+                }`}>
+                {projectName.length}/50
+              </span>
+            </div>
             <Input
               id="project-name"
               placeholder="My Awesome Project"
               value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              onChange={(e) => {
+                if (e.target.value.length <= 50) {
+                  setProjectName(e.target.value);
+                }
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !isCreating && projectName.trim()) {
                   handleCreateProject();
@@ -113,4 +127,3 @@ export function CreateProjectDialog({
     </Dialog>
   );
 }
-

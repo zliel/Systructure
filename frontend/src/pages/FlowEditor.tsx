@@ -11,6 +11,7 @@ import {
   useEdgesState,
   type Node,
   type Edge,
+  type Connection,
   Position,
 } from '@xyflow/react';
 
@@ -219,6 +220,21 @@ function FlowContent({ projectId }: FlowContentProps) {
     setIsPanelOpen(true);
   }, []);
 
+  const isValidConnection = useCallback(
+    // Self connection and duplicate connections are invalid
+    (connection: Edge | Connection) => {
+      if (connection.source === connection.target) return false;
+
+      const exists = edges.some(
+        (e) =>
+          e.source === connection.source &&
+          e.target === connection.target
+      );
+      return !exists;
+    },
+    [edges]
+  );
+
   const handleNodeSave = useCallback((nodeId: string, updatedData: { label: string; type: NodeType }) => {
     updateNodeData(nodeId, { label: updatedData.label });
   }, [updateNodeData]);
@@ -241,6 +257,7 @@ function FlowContent({ projectId }: FlowContentProps) {
           onDragOver={canEdit ? onDragOver : undefined}
           nodesDraggable={canEdit}
           nodesConnectable={canEdit}
+          isValidConnection={isValidConnection}
           onNodeDragStop={canEdit ? onNodeDragStop : undefined}
           elementsSelectable={true}
           deleteKeyCode={canEdit ? ['Backspace', 'Delete'] : []}

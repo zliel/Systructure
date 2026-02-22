@@ -1,5 +1,6 @@
 package com.systructure.controller;
 
+import com.systructure.exception.EntityNotFoundException;
 import com.systructure.model.Project;
 import com.systructure.model.ProjectMember;
 import com.systructure.model.ProjectRole;
@@ -7,6 +8,8 @@ import com.systructure.model.User;
 import com.systructure.repository.ProjectRepository;
 import com.systructure.repository.UserRepository;
 import com.systructure.service.ProjectMemberService;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.stereotype.Controller;
@@ -76,26 +79,33 @@ public class ProjectMemberController {
     }
 
     @MutationMapping
-    public ProjectMember addProjectMember(@Argument Map<String, Object> input) {
-        Long projectId = Long.valueOf(input.get("projectId").toString());
-        String identifier = input.get("identifier").toString();
-        ProjectRole role = ProjectRole.valueOf(input.get("role").toString());
-
-        return projectMemberService.addMemberByIdentifier(projectId, identifier, role);
+    public ProjectMember addProjectMember(@Argument AddMemberInput input) {
+        return projectMemberService.addMemberByIdentifier(
+                input.projectId(), input.identifier(), input.role());
     }
 
     @MutationMapping
-    public ProjectMember updateProjectMemberRole(@Argument Map<String, Object> input) {
-        Long memberId = Long.valueOf(input.get("memberId").toString());
-        ProjectRole role = ProjectRole.valueOf(input.get("role").toString());
-
-        return projectMemberService.updateRole(memberId, role)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found: " + memberId));
+    public ProjectMember updateProjectMemberRole(@Argument UpdateMemberRoleInput input) {
+        return projectMemberService.updateRole(input.memberId(), input.role())
+                .orElseThrow(() -> new EntityNotFoundException("ProjectMember", input.memberId()));
     }
 
     @MutationMapping
     public ProjectMember removeProjectMember(@Argument Long memberId) {
         return projectMemberService.removeMember(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found: " + memberId));
+                .orElseThrow(() -> new EntityNotFoundException("ProjectMember", memberId));
+    }
+
+    public record AddMemberInput(
+            @NotNull Long projectId,
+            @NotBlank String identifier,
+            @NotNull ProjectRole role
+    ) {
+    }
+
+    public record UpdateMemberRoleInput(
+            @NotNull Long memberId,
+            @NotNull ProjectRole role
+    ) {
     }
 }

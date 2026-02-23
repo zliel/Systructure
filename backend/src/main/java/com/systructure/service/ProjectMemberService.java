@@ -22,6 +22,7 @@ public class ProjectMemberService {
     private final ProjectMemberRepository projectMemberRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final AuthorizationService authorizationService;
 
     public Optional<ProjectMember> findById(Long id) {
         return projectMemberRepository.findById(id);
@@ -34,6 +35,7 @@ public class ProjectMemberService {
     }
 
     public List<ProjectMember> findByProjectId(Long projectId) {
+        authorizationService.requireViewPermission(projectId);
         return projectRepository.findById(projectId)
                 .map(projectMemberRepository::findByProject)
                 .orElse(List.of());
@@ -51,6 +53,8 @@ public class ProjectMemberService {
 
     @Transactional
     public ProjectMember addMember(Long projectId, Long userId, ProjectRole role) {
+        authorizationService.requireManagePermission(projectId);
+
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectId));
         User user = userRepository.findById(userId)
@@ -74,6 +78,8 @@ public class ProjectMemberService {
     @Transactional
     public Optional<ProjectMember> updateRole(Long memberId, ProjectRole newRole) {
         return projectMemberRepository.findById(memberId).map(member -> {
+            authorizationService.requireManagePermission(member.getProject().getId());
+            requireNotLastOwner(member, "demote");
             member.setProjectRole(newRole);
             return projectMemberRepository.save(member);
         });
@@ -82,9 +88,25 @@ public class ProjectMemberService {
     @Transactional
     public Optional<ProjectMember> removeMember(Long memberId) {
         return projectMemberRepository.findById(memberId).map(member -> {
+            authorizationService.requireManagePermission(member.getProject().getId());
+            requireNotLastOwner(member, "remove");
             projectMemberRepository.delete(member);
             return member;
         });
+    }
+
+    /**
+     * Prevents demotion or removal of the last owner of a project.
+     */
+    private void requireNotLastOwner(ProjectMember member, String action) {
+        if (member.getProjectRole() == ProjectRole.OWNER) {
+            long ownerCount = projectMemberRepository
+                    .countByProjectAndProjectRole(member.getProject(), ProjectRole.OWNER);
+            if (ownerCount <= 1) {
+                throw new IllegalStateException(
+                        "Cannot " + action + " the last owner of this project");
+            }
+        }
     }
 
     /**

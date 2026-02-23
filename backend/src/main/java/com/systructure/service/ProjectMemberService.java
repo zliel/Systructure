@@ -88,6 +88,20 @@ public class ProjectMemberService {
     }
 
     /**
+     * Prevents demotion or removal of the last owner of a project.
+     */
+    private void requireNotLastOwner(ProjectMember member, String action) {
+        if (member.getProjectRole() == ProjectRole.OWNER) {
+            long ownerCount = projectMemberRepository
+                    .countByProjectAndProjectRole(member.getProject(), ProjectRole.OWNER);
+            if (ownerCount <= 1) {
+                throw new IllegalStateException(
+                        "Cannot " + action + " the last owner of this project");
+            }
+        }
+    }
+
+    /**
      * Adds a member by email or username. Tries email first, then username.
      */
     @Transactional

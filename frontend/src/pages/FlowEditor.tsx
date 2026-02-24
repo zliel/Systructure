@@ -11,46 +11,22 @@ import {
   useEdgesState,
   type Node,
   type Edge,
-  type Connection,
-  Position,
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
 import { AppSidebar } from '@/components/AppSidebar';
 import { nodeTypes } from '@/components/flow';
-import { mapProjectEdgesToFlowEdges, mapProjectNodesToFlowNodes } from '@/utils/transformers';
-import { type Node as ProjectNode, type Edge as ProjectEdge, NodeType, type EdgeInput, type NodeInput } from '@/features/editor/types';
-import { useMutation, useQuery } from '@apollo/client/react';
-import { CREATE_EDGE, CREATE_NODE, DELETE_EDGES, DELETE_NODES } from '@/features/editor/api/mutations';
-import { GET_PROJECT_COMPONENTS } from '@/features/editor/api/queries';
-import { SpinnerBadge } from '@/components/SpinnerBadge';
-import { useTheme } from '@/components/theme-provider';
-import { NodeDetailsPanel } from '@/components/NodeDetailsPanel';
-import { SidebarInset } from '@/components/ui/sidebar';
 import { useProjectRole } from '@/hooks/use-project-role';
 import { useNodePositionSync } from '@/hooks/use-node-position-sync';
+import { useFlowMutations } from '@/features/editor/hooks/use-flow-mutations';
+import { useFlowHandlers } from '@/features/editor/hooks/use-flow-handlers';
+import { NodeDetailsPanel } from '@/features/editor/components/NodeDetailsPanel';
 import { PageTransition } from '@/components/PageTransition';
+import { SpinnerBadge } from '@/components/SpinnerBadge';
+import { SidebarInset } from '@/components/ui/sidebar';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
+import { useTheme } from '@/components/theme-provider';
 import { Check, CloudUpload, Eye } from 'lucide-react';
-
-interface ProjectComponents {
-  id: number;
-  name: string;
-  nodes: ProjectNode[];
-  edges: ProjectEdge[];
-}
-
-function getErrorMessage(error: unknown): string {
-  if (error && typeof error === 'object' && 'message' in error) {
-    const msg = (error as { message: string }).message;
-    if (msg.toLowerCase().includes('access denied') || msg.toLowerCase().includes('forbidden')) {
-      return "You don't have permission to perform this action";
-    }
-    return msg;
-  }
-  return 'An unexpected error occurred';
-}
 
 interface FlowContentProps {
   projectId: number;
@@ -60,183 +36,60 @@ function FlowContent({ projectId }: FlowContentProps) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
-  const { screenToFlowPosition, updateNodeData } = useReactFlow();
+  const { updateNodeData } = useReactFlow();
 
   const { canEdit, canManage, role, isLoading: roleLoading } = useProjectRole(projectId);
   const { saveStatus, onNodeDragStop } = useNodePositionSync({ enabled: canEdit });
-
-  // Queries & Mutations
-  const { loading, data } = useQuery<{ projectById: ProjectComponents }>(GET_PROJECT_COMPONENTS, { variables: { projectId } });
-
-  const [createNode] = useMutation<{ createNode: ProjectNode }>(CREATE_NODE, {
-    refetchQueries: [{ query: GET_PROJECT_COMPONENTS, variables: { projectId } }],
-    onCompleted: (data) => {
-      const newNode: Node = {
-        id: `${data.createNode.id}`,
-        type: 'system',
-        position: { x: data.createNode.xPos, y: data.createNode.yPos },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-        data: { label: data.createNode.name, type: data.createNode.type },
-      };
-      setNodes((nds) => nds.concat(newNode));
-    },
-    onError: (error) => toast.error(getErrorMessage(error)),
-  });
-
-  const [createEdge] = useMutation<{ createEdge: ProjectEdge }>(CREATE_EDGE, {
-    refetchQueries: [{ query: GET_PROJECT_COMPONENTS, variables: { projectId } }],
-    onCompleted: (data) => {
-      const newEdge: Edge = {
-        id: `${data.createEdge.id}`,
-        source: `${data.createEdge.sourceNode.id}`,
-        target: `${data.createEdge.targetNode.id}`,
-        animated: true,
-      };
-      setEdges((eds) => eds.concat(newEdge));
-    },
-    onError: (error) => toast.error(getErrorMessage(error)),
-  });
-
-  const [deleteNodes] = useMutation(DELETE_NODES, {
-    refetchQueries: [{ query: GET_PROJECT_COMPONENTS, variables: { projectId } }],
-    onError: (error) => toast.error(getErrorMessage(error)),
-  });
-
-  const [deleteEdges] = useMutation(DELETE_EDGES, {
-    refetchQueries: [{ query: GET_PROJECT_COMPONENTS, variables: { projectId } }],
-    onError: (error) => toast.error(getErrorMessage(error)),
-  });
-
   const { theme } = useTheme();
+
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
+  // Data fetching & mutations
+  const {
+    loading,
+    initialNodes,
+    initialEdges,
+    createNode,
+    createEdge,
+    deleteNodes,
+    deleteEdges,
+  } = useFlowMutations({ projectId, setNodes, setEdges });
+
   useEffect(() => {
-    if (data) {
-      const mappedNodes = mapProjectNodesToFlowNodes(data.projectById.nodes);
-      const mappedEdges = mapProjectEdgesToFlowEdges(data.projectById.edges);
-      setNodes(mappedNodes);
-      setEdges(mappedEdges);
+    if (initialNodes.length > 0 || initialEdges.length > 0) {
+      setNodes(initialNodes);
+      setEdges(initialEdges);
     }
-  }, [data, setNodes, setEdges]);
+  }, [initialNodes, initialEdges, setNodes, setEdges]);
 
-  const onDragStart = useCallback((event: React.DragEvent, nodeType: string) => {
-    if (!canEdit) return;
-    event.dataTransfer.setData('application/reactflow', nodeType);
-    event.dataTransfer.effectAllowed = 'move';
-  }, [canEdit]);
-
-  const onDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  }, []);
-
-  const onDrop = useCallback(
-    (event: React.DragEvent) => {
-      event.preventDefault();
-      if (!canEdit) {
-        toast.error("You don't have permission to edit this project");
-        return;
-      }
-
-      const type = event.dataTransfer.getData('application/reactflow');
-      if (!type) return;
-
-      const flowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!flowBounds) return;
-
-      const position = screenToFlowPosition({
-        x: event.clientX - flowBounds.left,
-        y: event.clientY - flowBounds.top,
-      });
-
-      const nodeInput: NodeInput = {
-        type: type as NodeType,
-        name: `${type} node(created)`,
-        xPos: position.x,
-        yPos: position.y,
-        projectId,
-      };
-      createNode({ variables: { input: nodeInput } });
-    },
-    [screenToFlowPosition, createNode, projectId, canEdit]
-  );
-
-  const onConnect = useCallback((params: any) => {
-    if (!canEdit) {
-      toast.error("You don't have permission to edit this project");
-      return;
-    }
-    const edgeInput: EdgeInput = {
-      sourceNodeId: parseInt(params.source),
-      targetNodeId: parseInt(params.target),
-      projectId,
-    }
-    createEdge({ variables: { input: edgeInput } });
-  }, [createEdge, projectId, canEdit]);
-
-  const onNodesDelete = useCallback((deletedNodes: Node[]) => {
-    if (!canEdit) {
-      toast.error("You don't have permission to edit this project");
-      return;
-    }
-    const nodeIds = deletedNodes.map((node) => parseInt(node.id));
-    deleteNodes({ variables: { nodeIds } });
-  }, [deleteNodes, canEdit]);
-
-  const onEdgesDelete = useCallback((deletedEdges: Edge[]) => {
-    if (!canEdit) {
-      toast.error("You don't have permission to edit this project");
-      return;
-    }
-    const edgeIds = deletedEdges.map((edge) => parseInt(edge.id));
-    deleteEdges({ variables: { edgeIds } });
-  }, [deleteEdges, canEdit]);
-
-  const onClickComponent = useCallback((type: string) => {
-    if (!canEdit) {
-      toast.error("You don't have permission to edit this project");
-      return;
-    }
-    const flowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-    if (!flowBounds) return;
-    const position = screenToFlowPosition({
-      x: flowBounds.left + flowBounds.width / 2,
-      y: flowBounds.top + flowBounds.height / 2,
-    });
-
-    const nodeInput: NodeInput = {
-      type: type as NodeType,
-      name: `${type} node`,
-      xPos: position.x,
-      yPos: position.y,
-      projectId,
-    };
-    createNode({ variables: { input: nodeInput } });
-  }, [screenToFlowPosition, createNode, projectId, canEdit]);
+  // Interaction handlers
+  const {
+    onDragStart,
+    onDragOver,
+    onDrop,
+    onConnect,
+    onNodesDelete,
+    onEdgesDelete,
+    onClickComponent,
+    isValidConnection,
+  } = useFlowHandlers({
+    projectId,
+    canEdit,
+    reactFlowWrapper,
+    edges,
+    createNode,
+    createEdge,
+    deleteNodes,
+    deleteEdges,
+  });
 
   const onNodeDoubleClick = useCallback((_: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
     setIsPanelOpen(true);
   }, []);
 
-  const isValidConnection = useCallback(
-    // Self connection and duplicate connections are invalid
-    (connection: Edge | Connection) => {
-      if (connection.source === connection.target) return false;
-
-      const exists = edges.some(
-        (e) =>
-          e.source === connection.source &&
-          e.target === connection.target
-      );
-      return !exists;
-    },
-    [edges]
-  );
-
-  const handleNodeSave = useCallback((nodeId: string, updatedData: { label: string; type: NodeType }) => {
+  const handleNodeSave = useCallback((nodeId: string, updatedData: { label: string }) => {
     updateNodeData(nodeId, { label: updatedData.label });
   }, [updateNodeData]);
 
@@ -319,7 +172,6 @@ export default function FlowEditor() {
   const { projectId: projectIdParam } = useParams<{ projectId: string }>();
   const projectId = projectIdParam ? parseInt(projectIdParam, 10) : NaN;
 
-  // Redirect to dashboard if projectId is invalid
   if (isNaN(projectId)) {
     return <Navigate to="/dashboard" replace />;
   }

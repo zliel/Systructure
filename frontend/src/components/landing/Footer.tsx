@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Separator } from '@/components/ui/separator';
 import { Workflow, Github, Linkedin } from 'lucide-react';
 
 const footerLinks = {

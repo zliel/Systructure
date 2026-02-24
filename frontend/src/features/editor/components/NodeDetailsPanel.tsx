@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { type Node } from '@xyflow/react';
+import { toast } from 'sonner';
 import {
   Sheet,
   SheetContent,
@@ -21,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { UPDATE_NODE } from '@/features/editor/api/mutations';
 import { NodeType, type Node as ProjectNode, type UpdateNodeInput } from '@/features/editor/types';
+import { getErrorMessage } from '@/features/editor/helpers/error-messages';
 
 interface NodeDetailsPanelProps {
   node: Node | null;
@@ -45,10 +47,11 @@ export function NodeDetailsPanel({
       if (node) {
         onSave(node.id, { label: data.updateNode.name, type: data.updateNode.type });
       }
+      toast.success('Node updated');
       onOpenChange(false);
     },
     onError: (error) => {
-      console.error('Error updating node:', error);
+      toast.error(getErrorMessage(error));
     },
   });
 
@@ -79,7 +82,7 @@ export function NodeDetailsPanel({
         },
       });
     },
-    [node, name, nodeType, projectId, updateNode]
+    [node, name, nodeType, projectId, updateNode],
   );
 
   if (!node) return null;

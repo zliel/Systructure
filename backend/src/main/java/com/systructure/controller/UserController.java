@@ -5,14 +5,12 @@ import com.systructure.model.User;
 import com.systructure.repository.ProjectMemberRepository;
 import com.systructure.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.BatchMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -25,6 +23,15 @@ public class UserController {
     @QueryMapping
     public User userById(@Argument Long id) {
         return userService.findById(id).orElse(null);
+    }
+
+    @MutationMapping
+    public User updateProfile(@Argument UpdateProfileInput input) {
+        return userService.updateProfile(
+                input.username().orElse(null),
+                input.currentPassword().orElse(null),
+                input.newPassword().orElse(null)
+        );
     }
 
     @BatchMapping
@@ -47,5 +54,11 @@ public class UserController {
     public String username(User user) {
         return user.getDisplayName();
     }
-}
 
+    public record UpdateProfileInput(
+            Optional<String> username,
+            Optional<String> currentPassword,
+            Optional<String> newPassword
+    ) {
+    }
+}

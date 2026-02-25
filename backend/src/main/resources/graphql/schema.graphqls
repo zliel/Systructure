@@ -27,6 +27,13 @@ type Mutation {
     addProjectMember(input: AddMemberInput!): ProjectMember
     updateProjectMemberRole(input: UpdateMemberRoleInput!): ProjectMember
     removeProjectMember(memberId: ID!): ProjectMember
+    updateProfile(input: UpdateProfileInput!): User
+}
+
+input UpdateProfileInput {
+    username: String
+    currentPassword: String
+    newPassword: String
 }
 
 input NodeInput {

@@ -1,7 +1,13 @@
 package com.systructure.service;
 
 import com.systructure.exception.AuthException;
+import com.systructure.model.Project;
+import com.systructure.model.ProjectMember;
+import com.systructure.model.ProjectRole;
 import com.systructure.model.User;
+import com.systructure.repository.ProjectMemberRepository;
+import com.systructure.repository.ProjectRepository;
+import com.systructure.repository.RefreshTokenRepository;
 import com.systructure.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +24,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthorizationService authorizationService;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final ProjectMemberRepository projectMemberRepository;
+    private final ProjectRepository projectRepository;
 
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
@@ -80,5 +89,59 @@ public class UserService {
         }
 
         return userRepository.save(user);
+    }
+
+    /**
+     * Delete the authenticated user's account.
+     * Requires password re-entry for security.
+     * Handles cascade: refresh tokens, owned projects, memberships.
+     */
+    @Transactional
+    public void deleteAccount(String password) {
+        Long userId = authorizationService.getCurrentUserId();
+        if (userId == null) {
+            throw new AuthException("Not authenticated");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AuthException("User not found"));
+
+        // Re-authenticate
+        if (password == null || !passwordEncoder.matches(password, user.getPassword())) {
+            throw new AuthException("Incorrect password");
+        }
+
+        // 1. Delete all refresh tokens
+        refreshTokenRepository.deleteByUser(user);
+
+        // 2. Handle projects where user is createdBy
+        List<ProjectMember> memberships = projectMemberRepository.findByUser(user);
+        for (ProjectMember membership : memberships) {
+            Project project = membership.getProject();
+
+            if (membership.getProjectRole() == ProjectRole.OWNER) {
+                // Check if there are other owners
+                long otherOwners = projectMemberRepository
+                        .findByProject(project)
+                        .stream()
+                        .filter(m -> m.getProjectRole() == ProjectRole.OWNER
+                                && !m.getUser().getId().equals(userId))
+                        .count();
+
+                if (otherOwners == 0) {
+                    // Sole owner — delete entire project (cascades nodes, edges, members)
+                    projectRepository.delete(project);
+                } else {
+                    // Other owners exist — just remove this membership
+                    projectMemberRepository.delete(membership);
+                }
+            } else {
+                // Non-owner — just remove membership
+                projectMemberRepository.delete(membership);
+            }
+        }
+
+        // 3. Delete the user
+        userRepository.delete(user);
     }
 }

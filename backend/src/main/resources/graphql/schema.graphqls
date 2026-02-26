@@ -28,6 +28,8 @@ type Mutation {
     updateProjectMemberRole(input: UpdateMemberRoleInput!): ProjectMember
     removeProjectMember(memberId: ID!): ProjectMember
     updateProfile(input: UpdateProfileInput!): User
+    deleteProject(id: ID!): Boolean
+    deleteAccount(password: String!): Boolean
 }
 
 input UpdateProfileInput {

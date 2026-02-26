@@ -3,7 +3,9 @@ import { useMutation } from '@apollo/client/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Globe, Loader2, Lock, Settings, Users } from 'lucide-react';
+import { Globe, Loader2, Lock, Settings, Trash2, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import {
   Dialog,
@@ -18,7 +20,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { UPDATE_PROJECT } from '@/features/projects/api/mutations';
+import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { UPDATE_PROJECT, DELETE_PROJECT } from '@/features/projects/api/mutations';
 import { GET_USER_PROJECTS } from '@/features/projects/api/queries';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { MemberList } from './MemberList';
@@ -48,8 +62,10 @@ export function ProjectSettingsDialog({
   project,
 }: ProjectSettingsDialogProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isPublic, setIsPublic] = useState(project.isPublic ?? false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   const {
     register,
@@ -85,6 +101,20 @@ export function ProjectSettingsDialog({
     },
   });
 
+  const [deleteProject, { loading: isDeleting }] = useMutation(DELETE_PROJECT, {
+    onCompleted: () => {
+      onOpenChange(false);
+      navigate('/dashboard');
+      toast.success('Project deleted');
+    },
+    onError: (err) => {
+      toast.error(err.message || 'Failed to delete project');
+    },
+    refetchQueries: [
+      { query: GET_USER_PROJECTS, variables: { userId: user?.id } },
+    ],
+  });
+
   const hasChanges = isDirty || isPublic !== (project.isPublic ?? false);
 
   const onSubmit = async (data: SettingsFormData) => {
@@ -98,6 +128,10 @@ export function ProjectSettingsDialog({
         },
       },
     });
+  };
+
+  const handleDeleteProject = async () => {
+    await deleteProject({ variables: { id: project.id } });
   };
 
   return (
@@ -220,6 +254,52 @@ export function ProjectSettingsDialog({
                   </Button>
                 </DialogFooter>
               </form>
+
+              <Separator className="my-4" />
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-destructive">Danger Zone</h4>
+                <p className="text-xs text-muted-foreground">
+                  Deleting a project permanently removes all nodes, edges, and member access.
+                  This action cannot be undone.
+                </p>
+                <AlertDialog onOpenChange={(isOpen) => { if (!isOpen) setDeleteConfirmText(''); }}>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm" className="gap-1.5">
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Delete Project
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete "{project.name}"?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete the project and all its data.
+                        Type <span className="font-mono font-semibold text-foreground">{project.name}</span> to confirm.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <Input
+                      placeholder="Type project name to confirm"
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      autoComplete="off"
+                    />
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteProject}
+                        disabled={deleteConfirmText !== project.name || isDeleting}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {isDeleting ? (
+                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Deleting...</>
+                        ) : (
+                          'Delete Project'
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </TabsContent>
 
             {/* ── Members Tab ────────────────────────── */}

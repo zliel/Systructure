@@ -34,6 +34,12 @@ public class UserController {
         );
     }
 
+    @MutationMapping
+    public boolean deleteAccount(@Argument String password) {
+        userService.deleteAccount(password);
+        return true;
+    }
+
     @BatchMapping
     public Map<User, List<ProjectMember>> projectMemberships(List<User> users) {
         List<ProjectMember> allMemberships = projectMemberRepository.findByUserIn(users);

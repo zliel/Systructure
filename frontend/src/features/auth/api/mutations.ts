@@ -11,3 +11,8 @@ export const UPDATE_PROFILE = gql`
     }
 `;
 
+export const DELETE_ACCOUNT = gql`
+    mutation DeleteAccount($password: String!) {
+        deleteAccount(password: $password)
+    }
+`;

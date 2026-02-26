@@ -43,3 +43,9 @@ export const REMOVE_PROJECT_MEMBER = gql`
     }
   }
 `;
+
+export const DELETE_PROJECT = gql`
+  mutation DeleteProject($id: ID!) {
+    deleteProject(id: $id)
+  }
+`;

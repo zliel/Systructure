@@ -3,8 +3,9 @@ import { useMutation } from '@apollo/client/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ChevronDown, Loader2 } from 'lucide-react';
+import { ChevronDown, Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Dialog,
@@ -28,8 +29,20 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
-import { UPDATE_PROFILE } from '@/features/auth/api/mutations';
+import { UPDATE_PROFILE, DELETE_ACCOUNT } from '@/features/auth/api/mutations';
+import { clearTokens } from '@/features/auth/api/auth';
 import type { AuthUser } from '@/features/auth/types';
 
 const usernameSchema = z.object({
@@ -61,6 +74,7 @@ interface AccountDialogProps {
 export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
   const { user, updateUser } = useAuth();
   const [passwordOpen, setPasswordOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
 
   const {
     register: registerUsername,
@@ -278,7 +292,74 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
             </form>
           </CollapsibleContent>
         </Collapsible>
+
+        <Separator />
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-destructive">Danger Zone</h4>
+          <p className="text-xs text-muted-foreground">
+            Permanently delete your account, projects you solely own, and all associated data.
+          </p>
+          <AlertDialog onOpenChange={(isOpen) => { if (!isOpen) setDeletePassword(''); }}>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm" className="gap-1.5">
+                <Trash2 className="h-3.5 w-3.5" />
+                Delete Account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action is irreversible. All your data will be permanently deleted.
+                  Enter your password to confirm.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="space-y-2">
+                <Label htmlFor="delete-password">Password</Label>
+                <Input
+                  id="delete-password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                />
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <DeleteAccountButton password={deletePassword} />
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function DeleteAccountButton({ password }: { password: string }) {
+  const navigate = useNavigate();
+  const [deleteAccount, { loading }] = useMutation(DELETE_ACCOUNT, {
+    onCompleted: () => {
+      clearTokens();
+      navigate('/');
+      toast.success('Account deleted');
+    },
+    onError: (err) => {
+      toast.error(err.message || 'Failed to delete account');
+    },
+  });
+
+  return (
+    <AlertDialogAction
+      onClick={() => deleteAccount({ variables: { password } })}
+      disabled={!password || loading}
+      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+    >
+      {loading ? (
+        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Deleting...</>
+      ) : (
+        'Delete Account'
+      )}
+    </AlertDialogAction>
   );
 }

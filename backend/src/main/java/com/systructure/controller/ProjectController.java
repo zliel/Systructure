@@ -95,6 +95,11 @@ public class ProjectController {
         ).orElse(null);
     }
 
+    @MutationMapping
+    public boolean deleteProject(@Argument Long id) {
+        return projectService.delete(id).isPresent();
+    }
+
     public record CreateProjectInput(
             String name,
             Optional<String> description,

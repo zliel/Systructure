@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PageTransition } from '@/components/PageTransition';
+import { getPasswordStrength } from '@/utils/password-strength';
 
 const signupSchema = z.object({
   email: z.email('Invalid email address'),
@@ -22,7 +23,8 @@ const signupSchema = z.object({
   password: z.string()
     .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Must contain an uppercase letter')
-    .regex(/[0-9]/, 'Must contain a number'),
+    .regex(/[0-9]/, 'Must contain a number')
+    .regex(/[^a-zA-Z0-9]/, 'Must contain a special character'),
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -30,29 +32,6 @@ const signupSchema = z.object({
 });
 
 type SignupFormData = z.infer<typeof signupSchema>;
-
-/** Calculate password strength as a 0–4 score */
-function getPasswordStrength(password: string): { score: number; label: string; color: string } {
-  let score = 0;
-  if (password.length >= 8) score++;
-  if (password.length >= 12) score++;
-  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
-  if (/[0-9]/.test(password)) score++;
-  if (/[^a-zA-Z0-9]/.test(password)) score++;
-
-  // Clamp to 4
-  score = Math.min(score, 4);
-
-  const levels: Record<number, { label: string; color: string }> = {
-    0: { label: 'Too weak', color: 'bg-red-500' },
-    1: { label: 'Weak', color: 'bg-red-400' },
-    2: { label: 'Fair', color: 'bg-yellow-500' },
-    3: { label: 'Good', color: 'bg-emerald-400' },
-    4: { label: 'Strong', color: 'bg-emerald-500' },
-  };
-
-  return { score, ...levels[score] };
-}
 
 export default function SignupPage() {
   const navigate = useNavigate();

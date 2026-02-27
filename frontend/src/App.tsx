@@ -5,15 +5,17 @@ import DashboardLayout from './layouts/DashboardLayout';
 import EditorLayout from './layouts/EditorLayout';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/Login';
-import SignupPage from './pages/Signup';
 import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 const AboutPage = lazy(() => import('./pages/AboutPage'));
+const SignupPage = lazy(() => import('./pages/Signup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const FlowEditor = lazy(() => import('./pages/FlowEditor'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 
+/** Lightweight centered spinner shown while a lazy page chunk loads. */
 function PageLoader() {
   return (
     <div className="flex h-screen w-full items-center justify-center">
@@ -60,9 +62,9 @@ const router = createBrowserRouter([
   {
     path: '/signup',
     element: (
-      <ErrorBoundary>
+      <LazyPage>
         <SignupPage />
-      </ErrorBoundary>
+      </LazyPage>
     ),
   },
   {
@@ -75,6 +77,16 @@ const router = createBrowserRouter([
           <ProtectedRoute>
             <LazyPage>
               <Dashboard />
+            </LazyPage>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'settings',
+        element: (
+          <ProtectedRoute>
+            <LazyPage>
+              <SettingsPage />
             </LazyPage>
           </ProtectedRoute>
         ),

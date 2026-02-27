@@ -255,6 +255,7 @@ export function ProjectSettingsDialog({
                 </DialogFooter>
               </form>
 
+              {/* ── Danger Zone ────────────────────────── */}
               <Separator className="my-4" />
               <div className="space-y-3">
                 <h4 className="text-sm font-medium text-destructive">Danger Zone</h4>
